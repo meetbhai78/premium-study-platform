@@ -105,3 +105,97 @@
     box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
   }
 }
+
+/* ---------------------------------------------------- */
+/* Premium UI Upgrade Styles */
+/* ---------------------------------------------------- */
+
+/* Dynamic breathing animated gradient backdrop */
+.gradient-bg {
+  background: linear-gradient(-45deg, #1e1b4b, #311042, #0f172a, #0c4a6e);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glowing Neon Borders */
+.neon-glow-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-glow-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to right, #a855f7, #6366f1, #3b82f6, #ec4899);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.neon-glow-border:hover::after {
+  opacity: 1;
+  background: linear-gradient(to right, #ec4899, #3b82f6, #6366f1, #a855f7);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+/* Circular Pomodoro Timer Progress Dashoffset transitions */
+.pomodoro-ring-circle {
+  transition: stroke-dashoffset 0.3s linear;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* Animated Floating shapes for immersive focus */
+@keyframes floatUp {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg);
+    opacity: 0.2;
+  }
+}
+
+.animate-float {
+  animation: floatUp 8s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatUp 12s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+/* Custom glow element */
+.glow-accent {
+  filter: blur(80px);
+  opacity: 0.15;
+  transition: opacity 0.5s ease;
+}
+
+.dark .glow-accent {
+  opacity: 0.35;
+}

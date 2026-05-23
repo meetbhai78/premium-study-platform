@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../context/AuthContext';
 import AdBanner from '../components/AdBanner';
 import { CardSkeleton } from '../components/SkeletonLoader';
-import { Search, Filter, Play, Download, Lock, FileText, FolderArchive, Film, ExternalLink, Sparkles, X } from 'lucide-react';
+import { Search, Filter, Play, Download, Lock, FileText, FolderArchive, Film, ExternalLink, Sparkles, X, Star, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Materials() {
@@ -15,7 +15,29 @@ export default function Materials() {
   const [category, setCategory] = useState('');
   const [type, setType] = useState('');
   const [activeVideo, setActiveVideo] = useState(null); // Holds item details when modal is visible
+  const [activePdf, setActivePdf] = useState(null);
+  const [bookmarks, setBookmarks] = useState(JSON.parse(localStorage.getItem('bookmarks') || '[]'));
   const navigate = useNavigate();
+
+  const toggleBookmark = (item) => {
+    let updated;
+    if (bookmarks.some((b) => b._id === item._id)) {
+      updated = bookmarks.filter((b) => b._id !== item._id);
+    } else {
+      updated = [...bookmarks, item];
+    }
+    setBookmarks(updated);
+    localStorage.setItem('bookmarks', JSON.stringify(updated));
+  };
+
+  const handleReadPdf = (item) => {
+    const isLocked = item.accessType === 'premium' && !isPremium && !isAdmin;
+    if (isLocked) {
+      navigate('/payment');
+      return;
+    }
+    setActivePdf(item);
+  };
 
   const categories = ['SSC', 'UPSC', 'Programming', 'Government Jobs', 'Spoken English', 'NEET/JEE'];
 
@@ -210,6 +232,14 @@ export default function Materials() {
                     </div>
                   )}
 
+                  {/* Bookmark star overlay */}
+                  <button
+                    onClick={() => toggleBookmark(item)}
+                    className="absolute top-3 right-3 h-7 w-7 rounded-full bg-white/95 dark:bg-slate-900/95 flex items-center justify-center shadow-md border border-slate-100 dark:border-slate-800/80 text-slate-400 hover:text-amber-500 transition-all z-10"
+                  >
+                    <Star className={`h-4 w-4 ${bookmarks.some((b) => b._id === item._id) ? 'fill-amber-400 text-amber-400' : 'text-slate-400 hover:text-amber-500'}`} />
+                  </button>
+
                   {/* Access type badge (Premium Lock) */}
                   <div className="absolute top-3 left-3 flex gap-2">
                     <span className="rounded-lg bg-white/95 dark:bg-slate-900/95 px-2.5 py-1 text-[10px] font-bold text-slate-700 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-800">
@@ -253,22 +283,41 @@ export default function Materials() {
                         <Lock className="h-3.5 w-3.5" />
                         Unlock ₹50
                       </Link>
-                    ) : item.type === 'video' ? (
-                      <button
-                        onClick={() => handleWatchVideo(item)}
-                        className="flex items-center gap-1 rounded-xl bg-premium-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-premium-600 transition-all shadow-md shadow-premium-500/20"
-                      >
-                        <Play className="h-3.5 w-3.5 fill-white" />
-                        Watch Video
-                      </button>
                     ) : (
-                      <button
-                        onClick={() => handleDownload(item)}
-                        className="flex items-center gap-1 rounded-xl bg-premium-500 px-3.5 py-2 text-xs font-bold text-white hover:bg-premium-600 transition-all shadow-md shadow-premium-500/20"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                        Download {item.type.toUpperCase()}
-                      </button>
+                      <div className="flex gap-2">
+                        {/* Always show "View/Read" if it is PDF or Video */}
+                        {(item.type === 'pdf' || item.type === 'video') && (
+                          <button
+                            onClick={() => item.type === 'video' ? handleWatchVideo(item) : handleReadPdf(item)}
+                            className="flex items-center gap-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-200 transition-all border border-slate-200 dark:border-slate-700"
+                          >
+                            {item.type === 'video' ? <Play className="h-3 w-3 fill-slate-700 dark:fill-slate-200" /> : <Eye className="h-3 w-3" />}
+                            {item.type === 'video' ? 'Watch' : 'Read'}
+                          </button>
+                        )}
+                        
+                        {/* Show download ONLY if user is Premium or Admin */}
+                        {(isPremium || isAdmin) ? (
+                          <button
+                            onClick={() => handleDownload(item)}
+                            className="flex items-center gap-1 rounded-xl bg-premium-500 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-premium-600 transition-all shadow-md shadow-premium-500/20 animate-scale-in"
+                          >
+                            <Download className="h-3 w-3" />
+                            Download
+                          </button>
+                        ) : (
+                          // If free user, and it's a zip or pdf, show premium lock badge on download capability
+                          item.type === 'zip' && (
+                            <Link
+                              to="/payment"
+                              className="flex items-center gap-1 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 px-3 py-1.5 text-[11px] font-bold text-amber-500 border border-amber-400/30 transition-all"
+                            >
+                              <Lock className="h-3 w-3" />
+                              Premium
+                            </Link>
+                          )
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -316,6 +365,62 @@ export default function Materials() {
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 {activeVideo.description}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* In-App PDF Reader Modal */}
+      {activePdf && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in">
+          <div className="relative w-full h-[90vh] max-w-5xl rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass flex flex-col justify-between animate-scale-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 animate-scale-in">
+              <div>
+                <h3 className="font-extrabold text-sm sm:text-base text-slate-800 dark:text-white truncate max-w-md">
+                  {activePdf.title}
+                </h3>
+                <span className="inline-block rounded-md bg-premium-100 dark:bg-premium-900/40 px-2 py-0.5 text-[9px] font-bold text-premium-600 dark:text-premium-300 mt-0.5 animate-pulse">
+                  Secure PDF Document Frame
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Download option inside modal ONLY for premium */}
+                {(isPremium || isAdmin) && (
+                  <button
+                    onClick={() => handleDownload(activePdf)}
+                    className="flex items-center gap-1.5 rounded-xl bg-premium-500 hover:bg-premium-600 px-3.5 py-2 text-xs font-bold text-white transition-all shadow-md shadow-premium-500/25"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Download PDF
+                  </button>
+                )}
+                <button
+                  onClick={() => setActivePdf(null)}
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Embedded PDF Viewer */}
+            <div className="flex-1 bg-slate-100 dark:bg-darkbg-100 p-2 select-none relative" onContextMenu={(e) => e.preventDefault()}>
+              <iframe
+                src={activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads') ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `http://localhost:5000${activePdf.fileUrl}`) : activePdf.fileUrl}
+                className="w-full h-full border-none rounded-2xl shadow-inner bg-slate-50 dark:bg-slate-900"
+                title={activePdf.title}
+              />
+            </div>
+
+            {/* Modal Footer Description */}
+            <div className="px-6 py-4 bg-slate-50 dark:bg-darkbg-100/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+              <p className="text-slate-500 dark:text-slate-400 truncate max-w-xl">
+                {activePdf.description || 'No document description.'}
+              </p>
+              <span className="text-[10px] text-slate-400 uppercase font-black tracking-wider">
+                In-App Viewer Fallback
+              </span>
             </div>
           </div>
         </div>
