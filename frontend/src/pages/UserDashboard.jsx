@@ -15,6 +15,23 @@ export default function UserDashboard() {
   const [loadingNotices, setLoadingNotices] = useState(true);
   const [loadingRecent, setLoadingRecent] = useState(true);
 
+  // Gamification & Quiz additions
+  const [quizzes, setQuizzes] = useState([]);
+  const [loadingQuizzes, setLoadingQuizzes] = useState(true);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+
+  // Interactive Quiz gameplay state
+  const [activePlayQuiz, setActivePlayQuiz] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [hasAnswered, setHasAnswered] = useState(false);
+  const [userAnswers, setUserAnswers] = useState([]);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [submittingQuiz, setSubmittingQuiz] = useState(false);
+  const [quizResultSummary, setQuizResultSummary] = useState(null);
+
   // Advanced feature additions
   const [bookmarks, setBookmarks] = useState(JSON.parse(localStorage.getItem('bookmarks') || '[]'));
   const [activePdf, setActivePdf] = useState(null);
@@ -97,6 +114,69 @@ export default function UserDashboard() {
     }
   };
 
+  // Quiz Play Controller Actions
+  const startQuizPlay = (quiz) => {
+    setActivePlayQuiz(quiz);
+    setCurrentQuestionIndex(0);
+    setSelectedOption(null);
+    setHasAnswered(false);
+    setUserAnswers([]);
+    setQuizScore(0);
+    setQuizCompleted(false);
+    setQuizResultSummary(null);
+  };
+
+  const handleOptionSelect = (optionIdx) => {
+    if (hasAnswered) return;
+    setSelectedOption(optionIdx);
+    setHasAnswered(true);
+
+    const isCorrect = optionIdx === activePlayQuiz.questions[currentQuestionIndex].correctOptionIndex;
+    if (isCorrect) {
+      setQuizScore(prev => prev + 1);
+    }
+
+    setUserAnswers(prev => {
+      const updated = [...prev];
+      updated[currentQuestionIndex] = optionIdx;
+      return updated;
+    });
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex + 1 < activePlayQuiz.questions.length) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedOption(null);
+      setHasAnswered(false);
+    } else {
+      submitQuizResults();
+    }
+  };
+
+  const submitQuizResults = async () => {
+    setSubmittingQuiz(true);
+    try {
+      const res = await axios.post(`${API_URL}/quizzes/${activePlayQuiz._id}/submit`, {
+        answers: userAnswers
+      });
+      if (res.data && res.data.success) {
+        setQuizResultSummary(res.data.data);
+        setQuizCompleted(true);
+        refreshUser(); // Syncs active streaks/points
+        
+        // Refresh leaderboard with latest points
+        const lbRes = await axios.get(`${API_URL}/quizzes/leaderboard`);
+        if (lbRes.data && lbRes.data.success) {
+          setLeaderboard(lbRes.data.data);
+        }
+      }
+    } catch (err) {
+      console.error('Quiz submission failed:', err.message);
+    } finally {
+      setSubmittingQuiz(false);
+    }
+  };
+
   useEffect(() => {
     refreshUser(); // Keep active profile status synced on load
     
@@ -129,6 +209,30 @@ export default function UserDashboard() {
         console.error('Failed to load recent materials:', err.message);
       } finally {
         setLoadingRecent(false);
+      }
+
+      // 3. Fetch active practice quizzes
+      try {
+        const quizRes = await axios.get(`${API_URL}/quizzes`);
+        if (quizRes.data && quizRes.data.success) {
+          setQuizzes(quizRes.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load quizzes:', err.message);
+      } finally {
+        setLoadingQuizzes(false);
+      }
+
+      // 4. Fetch ranking leaderboard
+      try {
+        const lbRes = await axios.get(`${API_URL}/quizzes/leaderboard`);
+        if (lbRes.data && lbRes.data.success) {
+          setLeaderboard(lbRes.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load leaderboard:', err.message);
+      } finally {
+        setLoadingLeaderboard(false);
       }
     };
 
@@ -395,6 +499,69 @@ export default function UserDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Announcements & Saved Library */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Daily Quiz Challenge Portal */}
+          <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-6 shadow-sm bg-gradient-to-br from-indigo-500/5 to-amber-500/5 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
+                  <Sparkles className="h-4.5 w-4.5 text-amber-500 fill-amber-500" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-slate-800 dark:text-white">Daily MCQ Challenge (દૈનિક ક્વિઝ)</h3>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">ટેસ્ટ રમો, પોઈન્ટ્સ કમાઓ અને રેન્ક લાવો</p>
+                </div>
+              </div>
+              
+              {/* User streak and points badge */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 rounded-xl bg-orange-500/10 px-2.5 py-1 text-[10px] font-black text-orange-500 border border-orange-500/20 animate-pulse">
+                  🔥 {user?.streak || 0} Days Streak
+                </div>
+                <div className="flex items-center gap-1 rounded-xl bg-indigo-500/10 px-2.5 py-1 text-[10px] font-black text-premium-500 border border-indigo-500/20">
+                  🪙 {user?.totalPoints || 0} Pts
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {loadingQuizzes ? (
+                <div className="text-center py-6 text-slate-400 text-xs pl-1">
+                  Loading daily quizzes...
+                </div>
+              ) : quizzes.length === 0 ? (
+                <div className="text-center py-6 text-slate-400 text-xs pl-1">
+                  આજની કોઈ ક્વિઝ સક્રિય નથી.
+                </div>
+              ) : (
+                quizzes.map((quiz) => (
+                  <div
+                    key={quiz._id}
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border border-slate-150 dark:border-slate-800/40 rounded-2xl bg-white/50 dark:bg-darkbg-200/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                  >
+                    <div>
+                      <span className="inline-block rounded-md bg-premium-100 dark:bg-premium-900/40 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-premium-600 dark:text-premium-300">
+                        {quiz.subject}
+                      </span>
+                      <h4 className="font-extrabold text-xs sm:text-sm text-slate-700 dark:text-slate-200 mt-1">
+                        {quiz.title}
+                      </h4>
+                      <p className="text-[10px] text-slate-450 dark:text-slate-500 mt-0.5">
+                        મહત્તમ ગુણ: {quiz.questions.length * 10} | પોઈન્ટ્સ બોનસ: +{quiz.pointsForCompletion}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => startQuizPlay(quiz)}
+                      className="w-full sm:w-auto flex items-center justify-center gap-1 rounded-xl bg-premium-500 hover:bg-premium-600 px-4 py-2.5 text-xs font-black text-white shadow-md shadow-premium-500/20 transition-all hover:-translate-y-0.5"
+                    >
+                      ટેસ્ટ શરૂ કરો (Start)
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
           {/* Active Announcements */}
           <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-6 shadow-sm">
             <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -562,6 +729,60 @@ export default function UserDashboard() {
                   <RotateCcw className="h-4 w-4" />
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Gujarat State-wide Leaderboard */}
+          <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-4 shadow-sm bg-gradient-to-tr from-yellow-500/5 via-transparent to-indigo-500/5 relative overflow-hidden animate-scale-in">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400">
+                  <Award className="h-4.5 w-4.5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-slate-800 dark:text-white">State Leaderboard (ગુજરાત રેન્કિંગ)</h3>
+                  <p className="text-[10px] text-slate-400">ટોપ પર્ફોર્મન્સ દર્શાવતા વિદ્યાર્થીઓ</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3.5">
+              {loadingLeaderboard ? (
+                <div className="text-center py-6 text-slate-400 text-xs pl-1">
+                  Loading leaderboard...
+                </div>
+              ) : leaderboard.length === 0 ? (
+                <div className="text-center py-6 text-slate-400 text-xs pl-1">
+                  No rank data recorded yet.
+                </div>
+              ) : (
+                leaderboard.slice(0, 5).map((item, index) => {
+                  const isCurrentUser = item.email === user?.email;
+                  const rankBadge = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                  return (
+                    <div
+                      key={item._id}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${isCurrentUser ? 'bg-premium-500/10 border-premium-400 shadow-sm' : 'border-slate-100 dark:border-slate-800/60 bg-white/20 dark:bg-darkbg-200/20'}`}
+                    >
+                      <div className="flex items-center gap-2.5 truncate w-2/3">
+                        <span className="font-black text-xs text-slate-400 w-6 text-center">{rankBadge}</span>
+                        <div className={`flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-white font-extrabold text-xs bg-gradient-to-tr ${index === 0 ? 'from-amber-400 to-orange-500' : index === 1 ? 'from-slate-300 to-slate-450' : index === 2 ? 'from-amber-600 to-amber-800' : 'from-slate-400 to-indigo-500'}`}>
+                          {item.name ? item.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="truncate">
+                          <h4 className={`font-black text-xs truncate ${isCurrentUser ? 'text-premium-600 dark:text-premium-450' : 'text-slate-700 dark:text-slate-300'}`}>
+                            {item.name} {isCurrentUser && '(You)'}
+                          </h4>
+                          <span className="text-[9px] text-slate-400 font-bold block mt-0.5">🔥 {item.streak || 0} Day Streak</span>
+                        </div>
+                      </div>
+                      <span className={`font-black text-xs ${index === 0 ? 'text-amber-500' : 'text-slate-500 dark:text-slate-400'}`}>
+                        {item.totalPoints || 0} Pts
+                      </span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -748,6 +969,167 @@ export default function UserDashboard() {
               <span className="text-[10px] text-slate-400 uppercase font-black tracking-wider">
                 In-App Viewer Fallback
               </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Quiz Play Modal */}
+      {activePlayQuiz && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in">
+          <div className="relative w-full max-w-xl rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass flex flex-col justify-between animate-scale-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+              <div>
+                <h3 className="font-extrabold text-sm sm:text-base text-slate-850 dark:text-white truncate max-w-xs">
+                  {activePlayQuiz.title}
+                </h3>
+                <span className="inline-block rounded-md bg-premium-100 dark:bg-premium-900/40 px-2 py-0.5 text-[9px] font-bold text-premium-600 dark:text-premium-300 mt-0.5 animate-pulse">
+                  દૈનિક ક્વિઝ પ્રેક્ટિસ (Daily Challenge)
+                </span>
+              </div>
+              {!quizCompleted && !submittingQuiz && (
+                <button
+                  onClick={() => setActivePlayQuiz(null)}
+                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-750 dark:hover:bg-slate-800 transition-colors focus:outline-none"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+
+            {/* Modal Body / Quiz play screen */}
+            <div className="p-6 overflow-y-auto max-h-[70vh] space-y-5">
+              {!quizCompleted ? (
+                <>
+                  {/* Progress Bar */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                      <span>પ્રશ્ન {currentQuestionIndex + 1} / {activePlayQuiz.questions.length}</span>
+                      <span className="text-premium-500 font-extrabold">
+                        {Math.round(((currentQuestionIndex) / activePlayQuiz.questions.length) * 100)}% Complete
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden shadow-inner">
+                      <div
+                        className="bg-gradient-to-r from-premium-500 to-indigo-500 h-full rounded-full transition-all duration-300 shadow-md shadow-premium-500/25"
+                        style={{ width: `${((currentQuestionIndex) / activePlayQuiz.questions.length) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Question Text */}
+                  <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-150 dark:border-slate-800/50">
+                    <p className="font-extrabold text-slate-800 dark:text-slate-100 leading-relaxed text-sm sm:text-base">
+                      Q{currentQuestionIndex + 1}: {activePlayQuiz.questions[currentQuestionIndex].questionText}
+                    </p>
+                  </div>
+
+                  {/* Options List */}
+                  <div className="space-y-2.5">
+                    {activePlayQuiz.questions[currentQuestionIndex].options.map((option, idx) => {
+                      const isSelected = selectedOption === idx;
+                      const isCorrectAnswer = idx === activePlayQuiz.questions[currentQuestionIndex].correctOptionIndex;
+                      
+                      let optionStyle = 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-slate-300 text-slate-700 dark:text-slate-300';
+                      
+                      if (hasAnswered) {
+                        if (isCorrectAnswer) {
+                          optionStyle = 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black shadow-md shadow-emerald-500/5 scale-[1.01]';
+                        } else if (isSelected) {
+                          optionStyle = 'border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black shadow-md shadow-rose-500/5 scale-[1.01]';
+                        } else {
+                          optionStyle = 'border-slate-200 dark:border-slate-800 opacity-60 text-slate-400';
+                        }
+                      } else if (isSelected) {
+                        optionStyle = 'border-premium-500 bg-premium-500/5 text-premium-600 font-black';
+                      }
+
+                      return (
+                        <button
+                          key={idx}
+                          disabled={hasAnswered}
+                          onClick={() => handleOptionSelect(idx)}
+                          className={`w-full text-left p-3.5 rounded-2xl border text-xs sm:text-sm font-bold transition-all duration-200 flex items-center justify-between gap-3 focus:outline-none ${optionStyle}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[10px] font-black uppercase ${isSelected ? 'bg-premium-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                              {String.fromCharCode(65 + idx)}
+                            </span>
+                            <span>{option}</span>
+                          </div>
+                          {hasAnswered && isCorrectAnswer && (
+                            <span className="text-emerald-500 text-sm font-bold">✓</span>
+                          )}
+                          {hasAnswered && isSelected && !isCorrectAnswer && (
+                            <span className="text-rose-500 text-sm font-bold">✗</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Show Study Explanation Instantly */}
+                  {hasAnswered && activePlayQuiz.questions[currentQuestionIndex].explanation && (
+                    <div className="rounded-2xl bg-indigo-500/5 dark:bg-indigo-950/15 border border-indigo-500/15 p-4 text-[11px] sm:text-xs text-slate-600 dark:text-slate-350 leading-relaxed animate-scale-in">
+                      <span className="font-extrabold text-premium-500 block mb-1">📘 સમજૂતી (Study Explanation):</span>
+                      {activePlayQuiz.questions[currentQuestionIndex].explanation}
+                    </div>
+                  )}
+
+                  {/* Navigation Control */}
+                  {hasAnswered && (
+                    <button
+                      onClick={handleNextQuestion}
+                      disabled={submittingQuiz}
+                      className="w-full flex items-center justify-center gap-1 rounded-2xl bg-premium-500 hover:bg-premium-600 py-3.5 text-xs font-black text-white shadow-lg shadow-premium-500/25 transition-all hover:scale-[1.01] focus:outline-none"
+                    >
+                      {currentQuestionIndex + 1 === activePlayQuiz.questions.length ? (submittingQuiz ? 'Grading answers...' : 'સબમિટ કરો (Submit Answers)') : 'આગળનો પ્રશ્ન (Next Question)'}
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  )}
+                </>
+              ) : (
+                /* Quiz Complete Screen */
+                <div className="text-center py-6 space-y-6 animate-scale-in">
+                  <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-amber-500/10 border-4 border-amber-400 text-amber-500 text-3xl animate-bounce">
+                    🎉
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="font-black text-lg text-slate-800 dark:text-white">અભિનંદન! ટેસ્ટ પૂર્ણ થઈ ગઈ છે.</h4>
+                    <p className="text-xs text-slate-400">SS STUDY Daily MCQ Practice Result</p>
+                  </div>
+
+                  {/* Score breakdown metrics card */}
+                  <div className="grid grid-cols-3 gap-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-100 dark:border-slate-800/60">
+                    <div className="text-center space-y-0.5">
+                      <span className="text-[10px] text-slate-400 font-bold block uppercase">સ્કોર (Score)</span>
+                      <span className="font-black text-sm text-slate-700 dark:text-slate-200">
+                        {quizResultSummary?.score} / {quizResultSummary?.totalQuestions}
+                      </span>
+                    </div>
+                    <div className="text-center space-y-0.5 border-x border-slate-200/50 dark:border-slate-700/50">
+                      <span className="text-[10px] text-slate-400 font-bold block uppercase">મેળવેલા પોઈન્ટ્સ</span>
+                      <span className="font-black text-sm text-amber-500">
+                        +{quizResultSummary?.pointsEarned} Pts
+                      </span>
+                    </div>
+                    <div className="text-center space-y-0.5">
+                      <span className="text-[10px] text-slate-400 font-bold block uppercase">Study Streak</span>
+                      <span className="font-black text-sm text-orange-500">
+                        🔥 {quizResultSummary?.streak} Days
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActivePlayQuiz(null)}
+                    className="w-full rounded-2xl bg-premium-500 hover:bg-premium-600 py-3.5 text-xs font-black text-white shadow-lg shadow-premium-500/25 transition-all hover:scale-[1.01] focus:outline-none"
+                  >
+                    ડેશબોર્ડ પર પાછા જાઓ (Done)
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
