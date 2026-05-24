@@ -65,7 +65,12 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-slate-50 dark:bg-darkbg-100 transition-colors">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-slate-50 dark:bg-darkbg-100 transition-colors relative">
+      {/* Back to Home */}
+      <Link to="/" className="absolute top-5 left-5 flex items-center gap-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all z-10">
+        <span>←</span> Home
+      </Link>
+
       <div className="relative w-full max-w-md">
         {/* Glow behind card */}
         <div className="absolute -inset-1 rounded-3xl bg-gradient-to-tr from-premium-500 to-indigo-600 blur-xl opacity-20 dark:opacity-30" />
@@ -73,8 +78,8 @@ export default function Register() {
         {/* Card */}
         <div className="relative rounded-3xl bg-white border border-slate-100 p-8 shadow-xl dark:border-slate-800 dark:bg-darkbg-200 transition-colors">
           <div className="text-center space-y-2 mb-8">
-            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-premium-500 text-white shadow-lg shadow-premium-500/20 font-bold text-xl">
-              A
+            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-premium-500 text-white shadow-lg shadow-premium-500/20 font-extrabold text-xs">
+              SS
             </div>
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Create Account</h2>
             <p className="text-xs text-slate-400 dark:text-slate-500">

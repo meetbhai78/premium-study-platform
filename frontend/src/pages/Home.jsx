@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { BookOpen, Sparkles, Shield, Compass, BookMarked, Video, FileDown, Layers, ArrowRight, Languages, Percent, FlaskConical, Binary, Atom, Brain, GraduationCap, Lightbulb, Calculator, Globe, FolderOpen } from 'lucide-react';
+import { BookOpen, Sparkles, Video, FileDown, ArrowRight, Languages, Percent, FlaskConical, Binary, Atom, Brain, GraduationCap, Lightbulb, Calculator, Globe, FolderOpen, Phone, Mail, Heart, Share2 } from 'lucide-react';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const categories = [
     { name: 'Gujarati Grammer', icon: BookOpen, color: 'from-orange-500 to-rose-600', desc: 'ગુજરાતી વ્યાકરણ અને સાહિત્ય લક્ષી નોટ્સ' },
@@ -21,6 +22,20 @@ export default function Home() {
     { name: 'Others', icon: FolderOpen, color: 'from-slate-500 to-slate-600', desc: 'અન્ય ઉપયોગી ફાઈલો અને મોક પેપર્સ' },
   ];
 
+  const handleShareApp = async () => {
+    try {
+      await navigator.share({
+        title: 'SS STUDY - Premium Study Material App',
+        text: 'SS STUDY એપ ડાઉનલોડ કરો! ધોરણ 9-10 અને સ્પર્ધાત્મક પરીક્ષાની શ્રેષ્ઠ તૈયારી. PDFs, Videos, Quizzes - બધું એક જ જગ્યાએ.',
+        url: window.location.origin,
+      });
+    } catch (err) {
+      // Fallback: WhatsApp share
+      const msg = encodeURIComponent(`SS STUDY - Premium Study Material App 📚\n\nધોરણ 9-10 અને સ્પર્ધાત્મક પરીક્ષાની શ્રેષ્ઠ તૈયારી.\nPDFs, Videos, Daily Quizzes - બધું Free!\n\n👉 ${window.location.origin}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-darkbg-100 transition-colors">
       {/* Hero Section */}
@@ -30,7 +45,7 @@ export default function Home() {
         <div className="relative max-w-4xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-premium-500/10 px-4 py-1.5 text-xs font-bold text-premium-600 dark:text-premium-300">
             <Sparkles className="h-4 w-4 text-premium-500 fill-premium-500" />
-            Empower Your Learning Journey
+            SS STUDY — તમારી તૈયારીનો વિશ્વાસુ સાથી
           </div>
  
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white font-sans">
@@ -41,7 +56,7 @@ export default function Home() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-500 dark:text-slate-400">
-            Gain immediate unlimited access to organized high-fidelity mock tests, PDFs, video tutorials, and ZIP files. Tailored specifically for Gujarati Grammer, English Grammer, Std 9 & 10 Maths/Science, Manovigyan, Pedagogy, Reasoning, Maths, and GK.
+            ધોરણ 9-10 અને સ્પર્ધાત્મક પરીક્ષા માટે organized PDFs, video tutorials, mock tests, અને ZIP files. Gujarati Grammer, English, Maths, Science, Manovigyan, Pedagogy, Reasoning, અને GK.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -89,15 +104,16 @@ export default function Home() {
           {categories.map((cat) => (
             <div
               key={cat.name}
-              className="glass premium-card rounded-3xl p-5 border border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-between h-48"
+              onClick={() => isAuthenticated ? navigate(`/materials?category=${encodeURIComponent(cat.name)}`) : navigate('/register')}
+              className="glass premium-card rounded-3xl p-5 border border-slate-200/50 dark:border-slate-800/50 flex flex-col justify-between h-48 cursor-pointer hover:scale-[1.02] hover:shadow-lg hover:border-premium-400/30 transition-all group"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-white bg-gradient-to-tr shadow-md shadow-slate-900/5 dark:shadow-none">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-white bg-gradient-to-tr shadow-md shadow-slate-900/5 dark:shadow-none group-hover:scale-110 transition-transform">
                 <div className={`flex h-full w-full items-center justify-center rounded-2xl bg-gradient-to-tr ${cat.color}`}>
                   <cat.icon className="h-5 w-5" />
                 </div>
               </div>
               <div className="mt-4">
-                <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100">{cat.name}</h3>
+                <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100 group-hover:text-premium-500 transition-colors">{cat.name}</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{cat.desc}</p>
               </div>
             </div>
@@ -146,11 +162,11 @@ export default function Home() {
           <span className="inline-block rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-wider">
             Limited Time Offer
           </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold">All-Access Premium Access PASS</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold">All-Access Premium Pass</h2>
           <p className="text-sm text-purple-100 max-w-lg mx-auto">
             Pay ₹50 only. No recurring subscriptions, no processing fees. Remove ads, enable all downloads, and view premium mock papers.
           </p>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               to={isAuthenticated ? '/payment' : '/register'}
               className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-extrabold text-premium-600 shadow-xl shadow-slate-900/10 hover:bg-slate-50 hover:-translate-y-0.5 transition-all"
@@ -158,9 +174,70 @@ export default function Home() {
               Get Premium Access Now
               <ArrowRight className="h-4 w-4" />
             </Link>
+            <button
+              onClick={handleShareApp}
+              className="inline-flex items-center gap-2 rounded-2xl bg-white/15 border border-white/25 px-5 py-3 text-sm font-bold text-white hover:bg-white/25 transition-all"
+            >
+              <Share2 className="h-4 w-4" />
+              Share with Friends
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 dark:bg-darkbg-200 text-white py-12 px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pb-8 border-b border-slate-800">
+            {/* Brand */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-premium-500 to-indigo-600 text-white font-extrabold text-xs shadow-md">
+                  SS
+                </div>
+                <span className="font-bold text-lg">SS STUDY</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                ધોરણ 9-10 અને સરકારી સ્પર્ધાત્મક પરીક્ષાઓ માટેનું ગુજરાતનું શ્રેષ્ઠ ડિજિટલ અભ્યાસ પ્લેટફોર્મ.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-sm text-slate-300 uppercase tracking-wider">Quick Links</h4>
+              <div className="flex flex-col gap-2 text-xs text-slate-400">
+                <Link to="/login" className="hover:text-white transition-colors">Sign In</Link>
+                <Link to="/register" className="hover:text-white transition-colors">Create Account</Link>
+                {isAuthenticated && <Link to="/materials" className="hover:text-white transition-colors">Study Library</Link>}
+                {isAuthenticated && <Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>}
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="space-y-3">
+              <h4 className="font-bold text-sm text-slate-300 uppercase tracking-wider">Contact & Support</h4>
+              <div className="flex flex-col gap-2.5 text-xs text-slate-400">
+                <a href="tel:9727353339" className="flex items-center gap-2 hover:text-white transition-colors">
+                  <Phone className="h-3.5 w-3.5 text-emerald-500" />
+                  Admin: 9727353339
+                </a>
+                <a href="mailto:meetberani78@gmail.com" className="flex items-center gap-2 hover:text-white transition-colors">
+                  <Mail className="h-3.5 w-3.5 text-indigo-400" />
+                  meetberani78@gmail.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-500">
+            <p>© 2026 SS STUDY. All rights reserved.</p>
+            <p className="flex items-center gap-1">
+              Made with <Heart className="h-3 w-3 text-rose-500 fill-rose-500" /> by Meet Berani
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

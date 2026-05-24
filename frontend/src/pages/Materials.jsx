@@ -3,15 +3,16 @@ import axios from 'axios';
 import { useAuth, API_URL, SERVER_URL } from '../context/AuthContext';
 import AdBanner from '../components/AdBanner';
 import { CardSkeleton } from '../components/SkeletonLoader';
-import { Search, Filter, Play, Download, Lock, FileText, FolderArchive, Film, ExternalLink, Sparkles, X, Star, Eye, BookOpen, Languages, Percent, FlaskConical, Binary, Atom, Brain, GraduationCap, Lightbulb, Calculator, Globe, FolderOpen } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Search, Filter, Play, Download, Lock, FileText, FolderArchive, Film, ExternalLink, Sparkles, X, Star, Eye, BookOpen, Languages, Percent, FlaskConical, Binary, Atom, Brain, GraduationCap, Lightbulb, Calculator, Globe, FolderOpen, Share2 } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function Materials() {
   const { isPremium, isAdmin } = useAuth();
   const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('');
+  const [searchParams] = useSearchParams();
+  const [category, setCategory] = useState(searchParams.get('category') || '');
   const [type, setType] = useState('');
   const [activeVideo, setActiveVideo] = useState(null); // Holds item details when modal is visible
   const [activePdf, setActivePdf] = useState(null);
@@ -367,7 +368,7 @@ export default function Materials() {
                         Unlock ₹50
                       </Link>
                     ) : (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {/* Always show "View/Read" if it is PDF or Video */}
                         {(item.type === 'pdf' || item.type === 'video') && (
                           <button
@@ -378,6 +379,22 @@ export default function Materials() {
                             {item.type === 'video' ? 'Watch' : 'Read'}
                           </button>
                         )}
+
+                        {/* Share button */}
+                        <button
+                          onClick={async () => {
+                            try {
+                              await navigator.share({ title: item.title, text: `SS STUDY: ${item.title} - ${item.category}`, url: window.location.origin });
+                            } catch (e) {
+                              const msg = encodeURIComponent(`📚 SS STUDY: ${item.title}\n${item.category}\n\n👉 ${window.location.origin}`);
+                              window.open(`https://wa.me/?text=${msg}`, '_blank');
+                            }
+                          }}
+                          className="flex items-center gap-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 px-2.5 py-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 transition-all border border-emerald-200/50 dark:border-emerald-800/40"
+                        >
+                          <Share2 className="h-3 w-3" />
+                          Share
+                        </button>
                         
                         {/* Show download ONLY if user is Premium or Admin */}
                         {(isPremium || isAdmin) ? (

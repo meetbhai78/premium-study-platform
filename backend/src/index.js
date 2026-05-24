@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
+const rateLimit = require('express-rate-limit');
 
 // Load environment variables
 dotenv.config();
@@ -44,6 +45,31 @@ setTimeout(seedAdminAccount, 3000);
 
 const app = express();
 
+// Rate Limiters
+const generalLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100,
+  message: { success: false, message: 'Too many requests. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 8,
+  message: { success: false, message: 'Too many login attempts. Please wait 1 minute.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 5,
+  message: { success: false, message: 'Too many upload attempts. Please try after 5 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Security and utility middlewares
 app.use(helmet({
   crossOriginResourcePolicy: false, // Allows cross-origin image loads for local files
@@ -58,6 +84,7 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(generalLimiter); // Apply general rate limit to all routes
 
 // Ensure upload folders exist
 const uploadsPath = path.resolve(__dirname, '../public/uploads');
@@ -69,9 +96,9 @@ if (!fs.existsSync(uploadsPath)) {
 app.use('/uploads', express.static(uploadsPath));
 
 // API Routes
-app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
 app.use('/api/materials', require('./routes/materialRoutes'));
-app.use('/api/payments', require('./routes/paymentRoutes'));
+app.use('/api/payments', uploadLimiter, require('./routes/paymentRoutes'));
 app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/quizzes', require('./routes/quizRoutes'));
