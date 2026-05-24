@@ -20,6 +20,7 @@ export default function UserDashboard() {
   const [loadingQuizzes, setLoadingQuizzes] = useState(true);
   const [leaderboard, setLeaderboard] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+  const [isPdfFullScreen, setIsPdfFullScreen] = useState(false);
 
   // Interactive Quiz gameplay state
   const [activePlayQuiz, setActivePlayQuiz] = useState(null);
@@ -923,75 +924,80 @@ export default function UserDashboard() {
       )}
 
       {/* In-App PDF Reader Modal */}
-      {activePdf && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in">
-          <div className="relative w-full h-[90vh] max-w-5xl rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass flex flex-col justify-between animate-scale-in">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 animate-scale-in">
-              <div>
-                <h3 className="font-extrabold text-sm sm:text-base text-slate-850 dark:text-white truncate max-w-md">
-                  {activePdf.title}
-                </h3>
-                <span className="inline-block rounded-md bg-premium-100 dark:bg-premium-900/40 px-2 py-0.5 text-[9px] font-bold text-premium-600 dark:text-premium-300 mt-0.5 animate-pulse">
-                  દસ્તાવેજ વ્યૂઅર (Premium PDF Reader)
+      {activePdf && (() => {
+        const pdfUrl = activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads')
+          ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`)
+          : activePdf.fileUrl;
+        const isLocalUrl = pdfUrl.includes('localhost') || pdfUrl.includes('127.0.0.1') || pdfUrl.includes('192.168.');
+        const iframeSrc = isLocalUrl ? pdfUrl : `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+
+        return (
+          <div className={isPdfFullScreen ? "fixed inset-0 z-50 bg-white dark:bg-darkbg-200 flex flex-col justify-between animate-scale-in" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-2 sm:p-4 animate-scale-in"}>
+            <div className={isPdfFullScreen ? "w-full h-full flex flex-col justify-between bg-white dark:bg-darkbg-200" : "relative w-full h-[85vh] max-w-5xl rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass flex flex-col justify-between animate-scale-in"}>
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <h3 className="font-extrabold text-sm sm:text-base text-slate-850 dark:text-white truncate max-w-md">
+                    {activePdf.title}
+                  </h3>
+                  <span className="inline-block rounded-md bg-premium-100 dark:bg-premium-900/40 px-2 py-0.5 text-[9px] font-bold text-premium-600 dark:text-premium-300 mt-0.5 animate-pulse">
+                    દસ્તાવેજ વ્યૂઅર (In-App PDF Reader)
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* In-App Full Screen View Toggle (No Browser Redirection!) */}
+                  <button
+                    onClick={() => setIsPdfFullScreen(!isPdfFullScreen)}
+                    className="flex items-center gap-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-650 px-3.5 py-2 text-xs font-bold text-white transition-all shadow-md shadow-indigo-500/20 focus:outline-none"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    {isPdfFullScreen ? 'Exit Full Screen (નાનું કરો)' : 'In-App Full Screen (મોટું કરો)'}
+                  </button>
+
+                  {/* Download option inside modal ONLY for premium */}
+                  {(isPremium || isAdmin) && (
+                    <button
+                      onClick={() => handleDownload(activePdf)}
+                      className="flex items-center gap-1.5 rounded-xl bg-premium-500 hover:bg-premium-600 px-3.5 py-2 text-xs font-bold text-white transition-all shadow-md shadow-premium-500/25 focus:outline-none"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setActivePdf(null);
+                      setIsPdfFullScreen(false);
+                    }}
+                    className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 transition-colors focus:outline-none"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Embedded PDF Viewer using local direct loading or Gview fallback */}
+              <div className="flex-1 bg-slate-100 dark:bg-darkbg-100 p-2 select-none relative" onContextMenu={(e) => e.preventDefault()}>
+                <iframe
+                  src={iframeSrc}
+                  className="w-full h-full border-none rounded-2xl shadow-inner bg-slate-50 dark:bg-slate-900"
+                  title={activePdf.title}
+                />
+              </div>
+
+              {/* Modal Footer Description */}
+              <div className="px-6 py-4 bg-slate-50 dark:bg-darkbg-100/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+                <p className="text-slate-500 dark:text-slate-400 truncate max-w-xl">
+                  {activePdf.description || 'No document description.'}
+                </p>
+                <span className="text-[10px] text-slate-400 uppercase font-black tracking-wider hidden sm:inline">
+                  {isLocalUrl ? 'Local Dev Engine' : 'Google Doc Framework'}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                {/* Full Screen View Action */}
-                <a
-                  href={activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads') ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`) : activePdf.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white transition-all shadow-md shadow-indigo-500/20"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  Full Screen (ખોલો)
-                </a>
-
-                {/* Download option inside modal ONLY for premium */}
-                {(isPremium || isAdmin) && (
-                  <button
-                    onClick={() => handleDownload(activePdf)}
-                    className="flex items-center gap-1.5 rounded-xl bg-premium-500 hover:bg-premium-600 px-3.5 py-2 text-xs font-bold text-white transition-all shadow-md shadow-premium-500/25"
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    Download
-                  </button>
-                )}
-                <button
-                  onClick={() => setActivePdf(null)}
-                  className="rounded-xl p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 transition-colors focus:outline-none"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Embedded PDF Viewer using Google Gview for Mobile compatibility */}
-            <div className="flex-1 bg-slate-100 dark:bg-darkbg-100 p-2 select-none relative" onContextMenu={(e) => e.preventDefault()}>
-              <iframe
-                src={`https://docs.google.com/gview?url=${encodeURIComponent(
-                  activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads')
-                    ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`)
-                    : activePdf.fileUrl
-                )}&embedded=true`}
-                className="w-full h-full border-none rounded-2xl shadow-inner bg-slate-50 dark:bg-slate-900"
-                title={activePdf.title}
-              />
-            </div>
-
-            {/* Modal Footer Description */}
-            <div className="px-6 py-4 bg-slate-50 dark:bg-darkbg-100/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
-              <p className="text-slate-500 dark:text-slate-400 truncate max-w-xl">
-                {activePdf.description || 'No document description.'}
-              </p>
-              <span className="text-[10px] text-slate-400 uppercase font-black tracking-wider hidden sm:inline">
-                Google Doc Framework
-              </span>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Interactive Quiz Play Modal */}
       {activePlayQuiz && (
