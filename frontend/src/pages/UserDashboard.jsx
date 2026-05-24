@@ -473,27 +473,34 @@ export default function UserDashboard() {
             </div>
           </div>
 
-          {/* User Profile Details Block */}
-          <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-4 shadow-sm">
+          {/* Daily Study Motivation & Challenge Widget */}
+          <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-4 shadow-sm bg-gradient-to-tr from-indigo-500/5 via-transparent to-purple-500/5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 h-16 w-16 bg-premium-500/5 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300">
-                <User className="h-4.5 w-4.5" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-premium-100 dark:bg-premium-900/40 text-premium-600 dark:text-premium-300">
+                <Sparkles className="h-4.5 w-4.5 text-premium-500 fill-premium-500" />
               </div>
-              <h3 className="font-extrabold text-sm text-slate-800 dark:text-white">Profile Details</h3>
+              <h3 className="font-extrabold text-sm text-slate-800 dark:text-white">Daily Study Focus</h3>
             </div>
 
-            <div className="space-y-3.5 text-xs text-slate-600 dark:text-slate-400 pl-1">
-              <div>
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Account Name</p>
-                <p className="font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">{user?.name}</p>
+            <div className="space-y-4 pl-1 text-xs">
+              <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/40 p-4 border border-slate-100 dark:border-slate-800/50">
+                <p className="italic text-slate-650 dark:text-slate-350 leading-relaxed">
+                  "ધ્યેય પ્રાપ્ત કરવા માટે સતત મહેનત અને ધીરજ એ જ સાચી ચાવી છે. આજનો દિવસ તમારી તૈયારીને વધુ મજબૂત બનાવવાનો છે!"
+                </p>
+                <p className="text-[10px] text-premium-500 font-bold mt-2 text-right">— SS Study Guide</p>
               </div>
-              <div>
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Email Address</p>
-                <p className="font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">{user?.email}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Mobile Number</p>
-                <p className="font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">{user?.mobile}</p>
+
+              <div className="space-y-2">
+                <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider">Today's Study Goal</p>
+                <div className="flex items-center gap-2.5 rounded-xl border border-slate-150 dark:border-slate-800/60 p-2.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Read 1 free Gujarati/English Grammar PDF</span>
+                </div>
+                <div className="flex items-center gap-2.5 rounded-xl border border-slate-150 dark:border-slate-800/60 p-2.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/20">
+                  <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Complete 1 Pomodoro session (25 mins)</span>
+                </div>
               </div>
             </div>
           </div>

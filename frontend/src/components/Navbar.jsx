@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Sun, Moon, LogOut, Bell, User, Star, Menu, X } from 'lucide-react';
+import { Sun, Moon, LogOut, Bell, User, Star, Menu, X, Shield } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../context/AuthContext';
@@ -11,6 +11,7 @@ export default function Navbar({ onToggleSidebar }) {
   const { theme, toggleTheme } = useTheme();
   const [notices, setNotices] = useState([]);
   const [showBellDropdown, setShowBellDropdown] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -135,25 +136,118 @@ export default function Navbar({ onToggleSidebar }) {
                 </Link>
               )}
 
-              {/* User Avatar Summary & Logout */}
+              {/* User Profile Avatar Button */}
               <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-800 pl-3">
-                <div className="hidden md:block text-right">
-                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.name}</p>
-                  <p className="text-[10px] text-slate-400">{user.email}</p>
-                </div>
-                
                 <button
-                  onClick={handleLogout}
-                  className="rounded-xl p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
-                  title="Sign Out"
+                  onClick={() => setShowProfileModal(true)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-premium-500 to-indigo-600 text-white font-extrabold text-sm shadow-md hover:scale-105 transition-all focus:outline-none ring-2 ring-premium-500/20"
+                  title="View Profile Details"
                 >
-                  <LogOut className="h-5 w-5" />
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </button>
               </div>
             </>
           )}
         </div>
       </div>
+
+      {/* Premium Profile Details Modal */}
+      {showProfileModal && (
+        <div
+          onClick={() => setShowProfileModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in"
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Upper colorful header */}
+            <div className="bg-gradient-to-r from-premium-500 via-purple-600 to-indigo-600 p-6 text-white text-center relative overflow-hidden">
+              <div className="absolute -top-12 -left-12 h-32 w-32 bg-white/15 rounded-full blur-xl pointer-events-none" />
+              
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="absolute top-4 right-4 rounded-xl p-1.5 bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-colors focus:outline-none"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white/25 border-2 border-white text-white font-black text-2xl shadow-inner mb-3">
+                {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <h3 className="font-extrabold text-lg truncate">{user.name}</h3>
+              <p className="text-xs text-purple-100/90 mt-0.5 truncate">{user.email}</p>
+
+              <div className="mt-3 inline-block">
+                {user.role === 'admin' ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/25 px-3 py-1 text-[10px] font-black uppercase tracking-wider">
+                    <Shield className="h-3 w-3" /> System Admin
+                  </span>
+                ) : isPremium ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-[10px] font-black text-slate-900 shadow-md premium-glow animate-pulse">
+                    <Star className="h-3 w-3 fill-slate-900" /> Premium Vault Pass
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold text-white">
+                    Free Tier Account
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Profile body details */}
+            <div className="p-6 space-y-5 text-xs">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Mobile Number</span>
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200">{user.mobile || 'N/A'}</span>
+                </div>
+
+                <div className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Role Identity</span>
+                  <span className="font-extrabold text-slate-800 dark:text-slate-200 capitalize">{user.role || 'User'}</span>
+                </div>
+
+                <div className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
+                  <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Subscription Status</span>
+                  {isPremium ? (
+                    <span className="font-bold text-amber-500">Lifetime Active (Ad-Free)</span>
+                  ) : user.paymentStatus === 'pending' ? (
+                    <span className="font-bold text-orange-500">Verification Pending</span>
+                  ) : user.paymentStatus === 'rejected' ? (
+                    <span className="font-bold text-rose-500">Rejected (Needs re-upload)</span>
+                  ) : (
+                    <span className="font-bold text-slate-500">Free Tier</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3 pt-3">
+                {!isPremium && user.role !== 'admin' && (
+                  <Link
+                    to="/payment"
+                    onClick={() => setShowProfileModal(false)}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-600 py-3 text-center text-xs font-black text-white shadow-lg shadow-amber-500/20 hover:scale-[1.01] transition-all"
+                  >
+                    <Star className="h-4 w-4 fill-white" /> Upgrade to Lifetime Premium (₹50)
+                  </Link>
+                )}
+
+                <button
+                  onClick={() => {
+                    setShowProfileModal(false);
+                    handleLogout();
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 bg-rose-50/50 py-3 text-center text-xs font-extrabold text-rose-600 dark:border-rose-900/30 dark:bg-rose-950/20 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/30 transition-all"
+                >
+                  <LogOut className="h-4 w-4" /> Sign Out from StudyPro
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
