@@ -1,16 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { BookOpen, Sparkles, Shield, Compass, BookMarked, Video, FileDown, Layers, ArrowRight } from 'lucide-react';
+import { BookOpen, Sparkles, Shield, Compass, BookMarked, Video, FileDown, Layers, ArrowRight, Languages, Percent, FlaskConical, Binary, Atom, Brain, GraduationCap, Lightbulb, Calculator, Globe, FolderOpen } from 'lucide-react';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
 
   const categories = [
-    { name: 'SSC Prep', icon: BookMarked, color: 'from-blue-500 to-indigo-600', desc: 'CGL, CHSL, MTS study cards' },
-    { name: 'UPSC IAS', icon: Compass, color: 'from-amber-500 to-orange-600', desc: 'Civil Services daily notes' },
-    { name: 'Programming', icon: Layers, color: 'from-emerald-500 to-teal-600', desc: 'Web & App full frameworks' },
-    { name: 'NEET / JEE', icon: Sparkles, color: 'from-purple-500 to-pink-600', desc: 'Physics, Chemistry, Maths manuals' },
+    { name: 'Gujarati Grammer', icon: BookOpen, color: 'from-orange-500 to-rose-600', desc: 'ગુજરાતી વ્યાકરણ અને સાહિત્ય લક્ષી નોટ્સ' },
+    { name: 'English Grammer', icon: Languages, color: 'from-blue-500 to-indigo-600', desc: 'English tenses, active-passive & idioms' },
+    { name: 'Std 9 Maths', icon: Percent, color: 'from-emerald-500 to-teal-600', desc: 'ધોરણ ૯ ગણિત પ્રકરણ-વાર સોલ્યુશન્સ' },
+    { name: 'Std 9 Science', icon: FlaskConical, color: 'from-purple-500 to-pink-600', desc: 'ધોરણ ૯ વિજ્ઞાન અને ટેકનોલોજી પ્રયોગો' },
+    { name: 'Std 10 Maths', icon: Binary, color: 'from-cyan-500 to-blue-600', desc: 'ધોરણ ૧૦ બોર્ડ ગણિત આઈએમપી પ્રશ્નો' },
+    { name: 'Std 10 Science', icon: Atom, color: 'from-rose-500 to-red-600', desc: 'ધોરણ ૧૦ વિજ્ઞાન મહત્વના પ્રશ્નોત્તરી' },
+    { name: 'Manovigyan', icon: Brain, color: 'from-violet-500 to-purple-600', desc: 'TET/TAT મનોવિજ્ઞાન અને બાળ વિકાસ' },
+    { name: 'Pedagogy', icon: GraduationCap, color: 'from-fuchsia-500 to-pink-600', desc: 'અધ્યાપન પદ્ધતિઓ અને વર્ગવ્યવહાર' },
+    { name: 'Reasoning', icon: Lightbulb, color: 'from-amber-500 to-orange-600', desc: 'કોડિંગ, દિશા-અંતર અને તાર્કિક કોયડા' },
+    { name: 'Maths', icon: Calculator, color: 'from-teal-500 to-emerald-600', desc: 'સ્પર્ધાત્મક અંકગણિત શોર્ટકટ ટ્રીક્સ' },
+    { name: 'GK', icon: Globe, color: 'from-sky-500 to-blue-600', desc: 'ગુજરાત સામાન્ય જ્ઞાન અને વર્તમાન પ્રવાહો' },
+    { name: 'Others', icon: FolderOpen, color: 'from-slate-500 to-slate-600', desc: 'અન્ય ઉપયોગી ફાઈલો અને મોક પેપર્સ' },
   ];
 
   return (
@@ -24,7 +32,7 @@ export default function Home() {
             <Sparkles className="h-4 w-4 text-premium-500 fill-premium-500" />
             Empower Your Learning Journey
           </div>
-
+ 
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white font-sans">
             Premium Study Materials <br />
             <span className="bg-gradient-to-r from-premium-500 via-pink-500 to-indigo-500 bg-clip-text text-transparent">
@@ -33,7 +41,7 @@ export default function Home() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-500 dark:text-slate-400">
-            Gain immediate unlimited access to organized high-fidelity mock tests, PDFs, video tutorials, and ZIP files. Tailored specifically for SSC, UPSC, Programming, Government Jobs, Spoken English, and NEET/JEE.
+            Gain immediate unlimited access to organized high-fidelity mock tests, PDFs, video tutorials, and ZIP files. Tailored specifically for Gujarati Grammer, English Grammer, Std 9 & 10 Maths/Science, Manovigyan, Pedagogy, Reasoning, Maths, and GK.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

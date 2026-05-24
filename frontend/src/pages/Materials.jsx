@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../context/AuthContext';
+import { useAuth, API_URL, SERVER_URL } from '../context/AuthContext';
 import AdBanner from '../components/AdBanner';
 import { CardSkeleton } from '../components/SkeletonLoader';
 import { Search, Filter, Play, Download, Lock, FileText, FolderArchive, Film, ExternalLink, Sparkles, X, Star, Eye } from 'lucide-react';
@@ -39,7 +38,20 @@ export default function Materials() {
     setActivePdf(item);
   };
 
-  const categories = ['SSC', 'UPSC', 'Programming', 'Government Jobs', 'Spoken English', 'NEET/JEE'];
+  const categories = [
+    'Gujarati Grammer',
+    'English Grammer',
+    'Std 9 Maths',
+    'Std 9 Science',
+    'Std 10 Maths',
+    'Std 10 Science',
+    'Manovigyan',
+    'Pedagogy',
+    'Reasoning',
+    'Maths',
+    'GK',
+    'Others',
+  ];
 
   const fetchMaterials = async () => {
     setLoading(true);
@@ -83,7 +95,7 @@ export default function Materials() {
 
       // Trigger standard browser download
       const link = document.createElement('a');
-      link.href = item.fileUrl.startsWith('http') ? item.fileUrl : `http://localhost:5000${item.fileUrl}`;
+      link.href = item.fileUrl.startsWith('http') ? item.fileUrl : `${SERVER_URL}${item.fileUrl}`;
       link.target = '_blank';
       link.download = item.title;
       document.body.appendChild(link);
@@ -218,7 +230,7 @@ export default function Materials() {
                 <div className="relative h-44 w-full rounded-2xl overflow-hidden bg-slate-100 dark:bg-darkbg-100 flex items-center justify-center border border-slate-100 dark:border-slate-800/40">
                   {item.thumbnailUrl && item.thumbnailUrl !== '' ? (
                     <img
-                      src={item.thumbnailUrl.startsWith('http') || item.thumbnailUrl.startsWith('/uploads') || item.thumbnailUrl.startsWith('/assets') ? (item.thumbnailUrl.startsWith('http') ? item.thumbnailUrl : `http://localhost:5000${item.thumbnailUrl}`) : `https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop`}
+                      src={item.thumbnailUrl.startsWith('http') || item.thumbnailUrl.startsWith('/uploads') || item.thumbnailUrl.startsWith('/assets') ? (item.thumbnailUrl.startsWith('http') ? item.thumbnailUrl : `${SERVER_URL}${item.thumbnailUrl}`) : `https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop`}
                       alt={item.title}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
@@ -352,7 +364,7 @@ export default function Materials() {
             {/* Video Player */}
             <div className="aspect-video bg-black flex items-center justify-center">
               <video
-                src={activeVideo.fileUrl.startsWith('http') || activeVideo.fileUrl.startsWith('/uploads') ? (activeVideo.fileUrl.startsWith('http') ? activeVideo.fileUrl : `http://localhost:5000${activeVideo.fileUrl}`) : activeVideo.fileUrl}
+                src={activeVideo.fileUrl.startsWith('http') || activeVideo.fileUrl.startsWith('/uploads') ? (activeVideo.fileUrl.startsWith('http') ? activeVideo.fileUrl : `${SERVER_URL}${activeVideo.fileUrl}`) : activeVideo.fileUrl}
                 controls
                 autoPlay
                 className="w-full h-full object-contain"
@@ -407,7 +419,7 @@ export default function Materials() {
             {/* Embedded PDF Viewer */}
             <div className="flex-1 bg-slate-100 dark:bg-darkbg-100 p-2 select-none relative" onContextMenu={(e) => e.preventDefault()}>
               <iframe
-                src={activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads') ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `http://localhost:5000${activePdf.fileUrl}`) : activePdf.fileUrl}
+                src={activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads') ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`) : activePdf.fileUrl}
                 className="w-full h-full border-none rounded-2xl shadow-inner bg-slate-50 dark:bg-slate-900"
                 title={activePdf.title}
               />

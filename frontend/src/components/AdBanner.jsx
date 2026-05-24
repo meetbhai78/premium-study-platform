@@ -32,7 +32,7 @@ export default function AdBanner({ position = 'top' }) {
               Sponsored Advertisement
             </span>
             <h4 className="font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-300 mt-0.5">
-              Supercharge your preparation for SSC, UPSC, and Spoken English exams!
+              Supercharge your preparation for Gujarati, English, Board & Competitive exams!
             </h4>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Unlock direct access to PDF study guides, premium mock tests, and full course videos.

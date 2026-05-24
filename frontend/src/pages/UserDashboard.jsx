@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../context/AuthContext';
+import { useAuth, API_URL, SERVER_URL } from '../context/AuthContext';
 import StatCard from '../components/StatCard';
 import AdBanner from '../components/AdBanner';
 import { NoticeSkeleton, TableRowSkeleton } from '../components/SkeletonLoader';
@@ -87,7 +86,7 @@ export default function UserDashboard() {
     try {
       await axios.post(`${API_URL}/materials/${item._id}/download`);
       const link = document.createElement('a');
-      link.href = item.fileUrl.startsWith('http') ? item.fileUrl : `http://localhost:5000${item.fileUrl}`;
+      link.href = item.fileUrl.startsWith('http') ? item.fileUrl : `${SERVER_URL}${item.fileUrl}`;
       link.target = '_blank';
       link.download = item.title;
       document.body.appendChild(link);
@@ -581,7 +580,7 @@ export default function UserDashboard() {
             {/* Video Player */}
             <div className="aspect-video bg-black flex items-center justify-center">
               <video
-                src={activeVideo.fileUrl.startsWith('http') || activeVideo.fileUrl.startsWith('/uploads') ? (activeVideo.fileUrl.startsWith('http') ? activeVideo.fileUrl : `http://localhost:5000${activeVideo.fileUrl}`) : activeVideo.fileUrl}
+                src={activeVideo.fileUrl.startsWith('http') || activeVideo.fileUrl.startsWith('/uploads') ? (activeVideo.fileUrl.startsWith('http') ? activeVideo.fileUrl : `${SERVER_URL}${activeVideo.fileUrl}`) : activeVideo.fileUrl}
                 controls
                 autoPlay
                 className="w-full h-full object-contain"
@@ -636,7 +635,7 @@ export default function UserDashboard() {
             {/* Embedded PDF Viewer */}
             <div className="flex-1 bg-slate-100 dark:bg-darkbg-100 p-2 select-none relative" onContextMenu={(e) => e.preventDefault()}>
               <iframe
-                src={activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads') ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `http://localhost:5000${activePdf.fileUrl}`) : activePdf.fileUrl}
+                src={activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads') ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`) : activePdf.fileUrl}
                 className="w-full h-full border-none rounded-2xl shadow-inner bg-slate-50 dark:bg-slate-900"
                 title={activePdf.title}
               />

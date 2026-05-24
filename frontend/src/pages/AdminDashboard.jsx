@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth, API_URL } from '../context/AuthContext';
+import { useAuth, API_URL, SERVER_URL } from '../context/AuthContext';
 import StatCard from '../components/StatCard';
 import { TableRowSkeleton } from '../components/SkeletonLoader';
 import {
@@ -38,7 +38,35 @@ export default function AdminDashboard() {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const categories = ['SSC', 'UPSC', 'Programming', 'Government Jobs', 'Spoken English', 'NEET/JEE'];
+  const categories = [
+    'Gujarati Grammer',
+    'English Grammer',
+    'Std 9 Maths',
+    'Std 9 Science',
+    'Std 10 Maths',
+    'Std 10 Science',
+    'Manovigyan',
+    'Pedagogy',
+    'Reasoning',
+    'Maths',
+    'GK',
+    'Others',
+  ];
+
+  const chartData = [
+    { label: 'Guj Gram', pct: '20%', height: 75, fill: 'url(#purpleBar)' },
+    { label: 'Eng Gram', pct: '15%', height: 60, fill: 'url(#indigoBar)' },
+    { label: 'Std 9 M', pct: '8%', height: 35, fill: 'url(#pinkBar)' },
+    { label: 'Std 9 S', pct: '10%', height: 42, fill: 'url(#amberBar)' },
+    { label: 'Std 10 M', pct: '12%', height: 50, fill: 'url(#emeraldBar)' },
+    { label: 'Std 10 S', pct: '14%', height: 58, fill: 'url(#cyanBar)' },
+    { label: 'Psych', pct: '12%', height: 50, fill: 'url(#purpleBar)' },
+    { label: 'Pedagogy', pct: '18%', height: 68, fill: 'url(#indigoBar)' },
+    { label: 'Reason', pct: '22%', height: 80, fill: 'url(#pinkBar)' },
+    { label: 'Maths', pct: '25%', height: 90, fill: 'url(#amberBar)' },
+    { label: 'GK', pct: '30%', height: 105, fill: 'url(#emeraldBar)' },
+    { label: 'Others', pct: '8%', height: 35, fill: 'url(#cyanBar)' },
+  ];
 
   // Clear notifications
   const clearMessages = () => {
@@ -454,35 +482,47 @@ export default function AdminDashboard() {
                   {/* Base Line */}
                   <line x1="20" y1="150" x2="480" y2="150" stroke="#e2e8f0" className="dark:stroke-slate-800/60" />
                   
-                  {/* SSC Bar */}
-                  <rect x="50" y="45" width="28" height="105" rx="5" fill="url(#purpleBar)" className="transition-all hover:opacity-85" />
-                  <text x="64" y="170" textAnchor="middle" fontSize="8" fill="#94a3b8" className="font-bold">SSC</text>
-                  <text x="64" y="35" textAnchor="middle" fontSize="8" fill="#8b5cf6" className="font-bold">40%</text>
+                  {chartData.map((item, index) => {
+                    const barWidth = 18;
+                    const barGap = 37;
+                    const startX = 30;
+                    const x = startX + index * barGap;
+                    const height = item.height;
+                    const y = 150 - height;
 
-                  {/* UPSC Bar */}
-                  <rect x="120" y="65" width="28" height="85" rx="5" fill="url(#indigoBar)" />
-                  <text x="134" y="170" textAnchor="middle" fontSize="8" fill="#94a3b8" className="font-bold">UPSC</text>
-                  <text x="134" y="55" textAnchor="middle" fontSize="8" fill="#6366f1" className="font-bold">30%</text>
-
-                  {/* Programming Bar */}
-                  <rect x="190" y="85" width="28" height="65" rx="5" fill="url(#pinkBar)" />
-                  <text x="204" y="170" textAnchor="middle" fontSize="8" fill="#94a3b8" className="font-bold">Programming</text>
-                  <text x="204" y="75" textAnchor="middle" fontSize="8" fill="#ec4899" className="font-bold">20%</text>
-
-                  {/* NEET/JEE Bar */}
-                  <rect x="260" y="105" width="28" height="45" rx="5" fill="url(#amberBar)" />
-                  <text x="274" y="170" textAnchor="middle" fontSize="8" fill="#94a3b8" className="font-bold">NEET/JEE</text>
-                  <text x="274" y="95" textAnchor="middle" fontSize="8" fill="#f59e0b" className="font-bold">15%</text>
-
-                  {/* Spoken English Bar */}
-                  <rect x="330" y="75" width="28" height="75" rx="5" fill="url(#emeraldBar)" />
-                  <text x="344" y="170" textAnchor="middle" fontSize="8" fill="#94a3b8" className="font-bold">English</text>
-                  <text x="344" y="65" textAnchor="middle" fontSize="8" fill="#10b981" className="font-bold">25%</text>
-
-                  {/* Gov Jobs Bar */}
-                  <rect x="400" y="55" width="28" height="95" rx="5" fill="url(#cyanBar)" />
-                  <text x="414" y="170" textAnchor="middle" fontSize="8" fill="#94a3b8" className="font-bold">Govt Jobs</text>
-                  <text x="414" y="45" textAnchor="middle" fontSize="8" fill="#06b6d4" className="font-bold">35%</text>
+                    return (
+                      <g key={item.label} className="transition-all hover:opacity-85">
+                        <rect
+                          x={x}
+                          y={y}
+                          width={barWidth}
+                          height={height}
+                          rx="4"
+                          fill={item.fill}
+                        />
+                        <text
+                          x={x + barWidth / 2}
+                          y={166}
+                          textAnchor="middle"
+                          fontSize="7"
+                          fill="#94a3b8"
+                          className="font-bold"
+                        >
+                          {item.label}
+                        </text>
+                        <text
+                          x={x + barWidth / 2}
+                          y={y - 6}
+                          textAnchor="middle"
+                          fontSize="7"
+                          fill={item.fill.includes('purpleBar') ? '#8b5cf6' : item.fill.includes('indigoBar') ? '#6366f1' : item.fill.includes('pinkBar') ? '#ec4899' : item.fill.includes('amberBar') ? '#f59e0b' : item.fill.includes('emeraldBar') ? '#10b981' : '#0891b2'}
+                          className="font-bold"
+                        >
+                          {item.pct}
+                        </text>
+                      </g>
+                    );
+                  })}
                   
                   {/* Defined Bar Gradient Fills */}
                   <defs>
@@ -635,7 +675,7 @@ export default function AdminDashboard() {
                   type="text"
                   value={materialForm.title}
                   onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })}
-                  placeholder="e.g. UPSC Prelims Indian Polity 2026"
+                  placeholder="e.g. Gujarati Vyakaran - Sandhi & Samas Rules"
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-2.5 px-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-premium-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 transition-all"
                   required
                 />
@@ -1031,7 +1071,7 @@ export default function AdminDashboard() {
         >
           <div className="relative max-w-lg max-h-[85vh] rounded-3xl bg-white border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden glass p-2 flex flex-col justify-between">
             <img
-              src={lightboxImage.startsWith('http') || lightboxImage.startsWith('/uploads') ? (lightboxImage.startsWith('http') ? lightboxImage : `http://localhost:5000${lightboxImage}`) : lightboxImage}
+              src={lightboxImage.startsWith('http') || lightboxImage.startsWith('/uploads') ? (lightboxImage.startsWith('http') ? lightboxImage : `${SERVER_URL}${lightboxImage}`) : lightboxImage}
               alt="Zoomed Payment Screenshot Receipt Claim"
               className="rounded-2xl max-w-full max-h-[75vh] object-contain shadow-sm"
               onError={(e) => {

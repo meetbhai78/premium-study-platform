@@ -26,6 +26,7 @@ const getApiUrl = () => {
 };
 
 export const API_URL = getApiUrl();
+export const SERVER_URL = API_URL.replace('/api', '');
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
