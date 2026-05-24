@@ -5,7 +5,8 @@ import StatCard from '../components/StatCard';
 import { TableRowSkeleton } from '../components/SkeletonLoader';
 import {
   Users, Sparkles, Shield, DollarSign, BookOpen, Megaphone, Trash2, Check, X, ShieldAlert,
-  ShieldCheck, Upload, AlertCircle, FileText, Image as ImageIcon, Search, PlusCircle, ExternalLink, HelpCircle
+  ShieldCheck, Upload, AlertCircle, FileText, Image as ImageIcon, Search, PlusCircle, ExternalLink, HelpCircle,
+  MessageCircle, Send, CheckCircle2, Clock
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -37,6 +38,13 @@ export default function AdminDashboard() {
   const [lightboxImage, setLightboxImage] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Doubt Management State
+  const [allDoubts, setAllDoubts] = useState([]);
+  const [pendingDoubtCount, setPendingDoubtCount] = useState(0);
+  const [replyText, setReplyText] = useState('');
+  const [activeReplyDoubtId, setActiveReplyDoubtId] = useState(null);
+  const [doubtFilter, setDoubtFilter] = useState('all'); // 'all', 'pending', 'solved'
 
   const categories = [
     'Gujarati Grammer',
@@ -144,6 +152,7 @@ export default function AdminDashboard() {
     if (activeTab === 'materials') await fetchMaterials();
     if (activeTab === 'payments') await fetchPayments();
     if (activeTab === 'notices') await fetchNotices();
+    if (activeTab === 'doubts') await fetchDoubts();
     setLoading(false);
   };
 
@@ -337,6 +346,53 @@ export default function AdminDashboard() {
     }
   };
 
+  // Fetch Doubts
+  const fetchDoubts = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/doubts/all`);
+      if (res.data && res.data.success) {
+        setAllDoubts(res.data.data);
+        setPendingDoubtCount(res.data.pendingCount || 0);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Reply to doubt
+  const handleDoubtReply = async (doubtId) => {
+    if (!replyText.trim()) return;
+    try {
+      const res = await axios.put(`${API_URL}/doubts/${doubtId}/reply`, { adminReply: replyText });
+      if (res.data && res.data.success) {
+        setSuccessMsg('Doubt solved! Reply sent to student.');
+        setReplyText('');
+        setActiveReplyDoubtId(null);
+        fetchDoubts();
+        clearMessages();
+      }
+    } catch (err) {
+      setErrorMsg('Failed to send reply.');
+      clearMessages();
+    }
+  };
+
+  // Delete doubt
+  const handleDeleteDoubt = async (doubtId) => {
+    if (!window.confirm('Delete this doubt permanently?')) return;
+    try {
+      const res = await axios.delete(`${API_URL}/doubts/${doubtId}`);
+      if (res.data && res.data.success) {
+        setSuccessMsg('Doubt deleted.');
+        fetchDoubts();
+        clearMessages();
+      }
+    } catch (err) {
+      setErrorMsg('Failed to delete doubt.');
+      clearMessages();
+    }
+  };
+
   return (
     <div className="flex-1 px-4 py-8 max-w-7xl mx-auto space-y-6">
       {/* Header Panel */}
@@ -393,6 +449,7 @@ export default function AdminDashboard() {
           { id: 'materials', label: 'Materials Library', icon: BookOpen },
           { id: 'payments', label: 'Payment Approvals', icon: ShieldCheck, count: payments.length },
           { id: 'notices', label: 'Broadcast Bulletin', icon: Megaphone },
+          { id: 'doubts', label: 'Student Doubts', icon: MessageCircle, count: pendingDoubtCount },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -1059,6 +1116,138 @@ export default function AdminDashboard() {
                 ))
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Doubts Management Tab */}
+      {activeTab === 'doubts' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-extrabold text-slate-800 dark:text-white">Student Doubt Management</h2>
+            <div className="flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200/50 dark:border-slate-700/50">
+              {['all', 'pending', 'solved'].map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setDoubtFilter(f)}
+                  className={`rounded-lg px-3 py-1 text-[10px] font-bold transition-all ${doubtFilter === f ? 'bg-violet-500 text-white shadow-md' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
+                >
+                  {f === 'all' ? 'All' : f === 'pending' ? 'Pending' : 'Solved'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {loading ? (
+              <><TableRowSkeleton /><TableRowSkeleton /><TableRowSkeleton /></>
+            ) : allDoubts.filter(d => doubtFilter === 'all' ? true : d.status === doubtFilter).length === 0 ? (
+              <div className="text-center py-12 text-slate-400 text-xs">
+                <MessageCircle className="h-10 w-10 mx-auto mb-3 text-slate-300" />
+                No {doubtFilter !== 'all' ? doubtFilter : ''} doubts found.
+              </div>
+            ) : (
+              allDoubts.filter(d => doubtFilter === 'all' ? true : d.status === doubtFilter).map((doubt) => (
+                <div
+                  key={doubt._id}
+                  className={`rounded-2xl border p-5 transition-all ${doubt.status === 'solved' ? 'border-emerald-200/50 dark:border-emerald-900/30 bg-emerald-50/20 dark:bg-emerald-950/10' : 'border-amber-200/50 dark:border-amber-900/30 bg-amber-50/20 dark:bg-amber-950/10'}`}
+                >
+                  {/* Student Info */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-violet-500 to-indigo-600 text-white font-extrabold text-xs">
+                        {doubt.student?.name ? doubt.student.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                          {doubt.student?.name || 'Unknown'}
+                        </h4>
+                        <p className="text-[9px] text-slate-400">
+                          {doubt.student?.email} • {doubt.student?.mobile}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${doubt.status === 'solved' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-600'}`}>
+                        {doubt.status === 'solved' ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        {doubt.status}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteDoubt(doubt._id)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-500/10 transition-colors"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Doubt Content */}
+                  <div className="rounded-xl bg-white/50 dark:bg-darkbg-100/30 border border-slate-100 dark:border-slate-800/40 p-3 mb-3">
+                    {doubt.materialTitle && doubt.materialTitle !== 'General Doubt' && (
+                      <span className="inline-block rounded-md bg-premium-100 dark:bg-premium-900/40 px-1.5 py-0.5 text-[9px] font-bold text-premium-600 dark:text-premium-300 mb-1">
+                        {doubt.materialCategory && `${doubt.materialCategory} • `}{doubt.materialTitle}
+                      </span>
+                    )}
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{doubt.question}</p>
+                    <span className="text-[9px] text-slate-400 mt-1 block">
+                      {new Date(doubt.createdAt).toLocaleDateString()} {new Date(doubt.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+
+                  {/* Existing Reply */}
+                  {doubt.status === 'solved' && doubt.adminReply && (
+                    <div className="rounded-xl bg-emerald-100/50 dark:bg-emerald-950/20 border border-emerald-200/40 dark:border-emerald-800/30 p-3 mb-3">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white text-[8px] font-black">A</div>
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">Your Reply</span>
+                      </div>
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{doubt.adminReply}</p>
+                    </div>
+                  )}
+
+                  {/* Reply Form (for pending doubts) */}
+                  {doubt.status === 'pending' && (
+                    <div>
+                      {activeReplyDoubtId === doubt._id ? (
+                        <div className="space-y-2 animate-scale-in">
+                          <textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="તમારો જવાબ લખો... (Type your answer here)"
+                            rows={3}
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 focus:border-violet-500 focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 transition-all resize-none"
+                          />
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleDoubtReply(doubt._id)}
+                              disabled={!replyText.trim()}
+                              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-md disabled:opacity-50 transition-all"
+                            >
+                              <Send className="h-3.5 w-3.5" />
+                              Send Reply & Solve
+                            </button>
+                            <button
+                              onClick={() => { setActiveReplyDoubtId(null); setReplyText(''); }}
+                              className="rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-all"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setActiveReplyDoubtId(doubt._id)}
+                          className="flex items-center gap-1.5 rounded-xl bg-violet-500 hover:bg-violet-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20 transition-all hover:-translate-y-0.5"
+                        >
+                          <Send className="h-3.5 w-3.5" />
+                          Reply to Student
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}

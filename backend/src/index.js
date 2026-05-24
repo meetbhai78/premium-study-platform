@@ -102,6 +102,8 @@ app.use('/api/payments', uploadLimiter, require('./routes/paymentRoutes'));
 app.use('/api/notices', require('./routes/noticeRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/quizzes', require('./routes/quizRoutes'));
+app.use('/api/doubts', require('./routes/doubtRoutes'));
+app.use('/api/activity', require('./routes/activityRoutes'));
 
 // Health Check Endpoint
 app.get('/health', (req, res) => {

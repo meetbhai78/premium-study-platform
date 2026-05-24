@@ -4,7 +4,7 @@ import { useAuth, API_URL, SERVER_URL } from '../context/AuthContext';
 import StatCard from '../components/StatCard';
 import AdBanner from '../components/AdBanner';
 import { NoticeSkeleton, TableRowSkeleton } from '../components/SkeletonLoader';
-import { ShieldCheck, User, Star, Megaphone, Clock, Sparkles, BookOpen, ChevronRight, AlertTriangle, XCircle, FileText, Play, Pause, RotateCcw, Award, Trash2, Eye, X, Film, FolderArchive, Download } from 'lucide-react';
+import { ShieldCheck, User, Star, Megaphone, Clock, Sparkles, BookOpen, ChevronRight, AlertTriangle, XCircle, FileText, Play, Pause, RotateCcw, Award, Trash2, Eye, X, Film, FolderArchive, Download, MessageCircle, Send, BarChart3, Calendar, CheckCircle2, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function UserDashboard() {
@@ -38,6 +38,21 @@ export default function UserDashboard() {
   const [activePdf, setActivePdf] = useState(null);
   const [activeVideo, setActiveVideo] = useState(null);
   const [freeMaterialsCount, setFreeMaterialsCount] = useState(0);
+
+  // Doubt System State
+  const [myDoubts, setMyDoubts] = useState([]);
+  const [loadingDoubts, setLoadingDoubts] = useState(true);
+  const [showDoubtForm, setShowDoubtForm] = useState(false);
+  const [doubtQuestion, setDoubtQuestion] = useState('');
+  const [doubtMaterial, setDoubtMaterial] = useState('');
+  const [doubtCategory, setDoubtCategory] = useState('');
+  const [submittingDoubt, setSubmittingDoubt] = useState(false);
+
+  // Activity Report State
+  const [activityReport, setActivityReport] = useState(null);
+  const [activityList, setActivityList] = useState([]);
+  const [activityPeriod, setActivityPeriod] = useState('today');
+  const [loadingActivity, setLoadingActivity] = useState(true);
 
   // Pomodoro Focus Timer State
   const [timeLeft, setTimeLeft] = useState(1500); // 25 minutes
@@ -235,10 +250,84 @@ export default function UserDashboard() {
       } finally {
         setLoadingLeaderboard(false);
       }
+      // 5. Fetch my doubts
+      try {
+        const doubtRes = await axios.get(`${API_URL}/doubts/my`);
+        if (doubtRes.data && doubtRes.data.success) {
+          setMyDoubts(doubtRes.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load doubts:', err.message);
+      } finally {
+        setLoadingDoubts(false);
+      }
+
+      // 6. Fetch activity report
+      try {
+        const actRes = await axios.get(`${API_URL}/activity/report?period=today`);
+        if (actRes.data && actRes.data.success) {
+          setActivityReport(actRes.data.summary);
+          setActivityList(actRes.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load activity:', err.message);
+      } finally {
+        setLoadingActivity(false);
+      }
     };
 
     fetchDashboardData();
   }, []);
+
+  // Fetch activity when period changes
+  useEffect(() => {
+    const fetchActivity = async () => {
+      setLoadingActivity(true);
+      try {
+        const actRes = await axios.get(`${API_URL}/activity/report?period=${activityPeriod}`);
+        if (actRes.data && actRes.data.success) {
+          setActivityReport(actRes.data.summary);
+          setActivityList(actRes.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load activity:', err.message);
+      } finally {
+        setLoadingActivity(false);
+      }
+    };
+    fetchActivity();
+  }, [activityPeriod]);
+
+  // Submit a new doubt
+  const handleSubmitDoubt = async () => {
+    if (!doubtQuestion.trim()) return;
+    setSubmittingDoubt(true);
+    try {
+      const res = await axios.post(`${API_URL}/doubts`, {
+        question: doubtQuestion,
+        materialTitle: doubtMaterial || 'General Doubt',
+        materialCategory: doubtCategory || '',
+      });
+      if (res.data && res.data.success) {
+        setMyDoubts(prev => [res.data.data, ...prev]);
+        setDoubtQuestion('');
+        setDoubtMaterial('');
+        setDoubtCategory('');
+        setShowDoubtForm(false);
+      }
+    } catch (err) {
+      console.error('Doubt submission failed:', err.message);
+    } finally {
+      setSubmittingDoubt(false);
+    }
+  };
+
+  // Activity logger helper (call from frontend actions)
+  const logActivity = async (actionType, title = '', category = '') => {
+    try {
+      await axios.post(`${API_URL}/activity/log`, { actionType, title, category });
+    } catch (err) { /* silent */ }
+  };
 
   const getStatusBanner = () => {
     const bannerImg = "/study_banner.png";
@@ -900,7 +989,238 @@ export default function UserDashboard() {
         </div>
       </div>
 
-      {/* Video Streaming Modal */}
+      {/* ============ DOUBT Q&A SYSTEM ============ */}
+      <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-5 shadow-sm bg-gradient-to-br from-violet-500/5 to-indigo-500/5 animate-scale-in">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
+              <MessageCircle className="h-4.5 w-4.5" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm text-slate-800 dark:text-white">Doubt Q&A (શંકા-સમાધાન)</h3>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500">તમારો પ્રશ્ન પૂછો, Admin જવાબ આપશે</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowDoubtForm(!showDoubtForm)}
+            className="flex items-center gap-1 rounded-xl bg-violet-500 hover:bg-violet-600 px-3 py-2 text-[11px] font-bold text-white shadow-md shadow-violet-500/20 transition-all hover:-translate-y-0.5"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            {showDoubtForm ? 'Cancel' : 'Ask Doubt'}
+          </button>
+        </div>
+
+        {/* Doubt Form */}
+        {showDoubtForm && (
+          <div className="rounded-2xl border border-violet-200/50 dark:border-violet-900/30 bg-white/50 dark:bg-darkbg-200/50 p-4 space-y-3 animate-scale-in">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input
+                type="text"
+                value={doubtMaterial}
+                onChange={(e) => setDoubtMaterial(e.target.value)}
+                placeholder="Material / Topic name (Optional)"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 focus:border-violet-500 focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 transition-all"
+              />
+              <input
+                type="text"
+                value={doubtCategory}
+                onChange={(e) => setDoubtCategory(e.target.value)}
+                placeholder="Category (e.g. Gujarati Grammer)"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 focus:border-violet-500 focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 transition-all"
+              />
+            </div>
+            <textarea
+              value={doubtQuestion}
+              onChange={(e) => setDoubtQuestion(e.target.value)}
+              placeholder="તમારો doubt / પ્રશ્ન અહીં લખો... (Write your question here)"
+              rows={3}
+              maxLength={1000}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 px-3 text-xs text-slate-800 placeholder-slate-400 focus:border-violet-500 focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 transition-all resize-none"
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400">{doubtQuestion.length}/1000</span>
+              <button
+                onClick={handleSubmitDoubt}
+                disabled={submittingDoubt || !doubtQuestion.trim()}
+                className="flex items-center gap-1.5 rounded-xl bg-violet-500 hover:bg-violet-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-violet-500/20 disabled:opacity-50 transition-all"
+              >
+                <Send className="h-3.5 w-3.5" />
+                {submittingDoubt ? 'Sending...' : 'Submit Doubt'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Doubts List */}
+        <div className="space-y-3 max-h-80 overflow-y-auto">
+          {loadingDoubts ? (
+            <div className="text-center py-6 text-slate-400 text-xs">Loading doubts...</div>
+          ) : myDoubts.length === 0 ? (
+            <div className="text-center py-8 text-slate-400 text-xs">
+              <MessageCircle className="h-8 w-8 mx-auto mb-2 text-slate-300" />
+              તમે હજુ કોઈ doubt પૂછ્યો નથી. ઉપર "Ask Doubt" button press કરો!
+            </div>
+          ) : (
+            myDoubts.map((d) => (
+              <div
+                key={d._id}
+                className={`rounded-2xl border p-4 transition-all ${
+                  d.status === 'solved'
+                    ? 'border-emerald-200/50 dark:border-emerald-900/30 bg-emerald-50/30 dark:bg-emerald-950/10'
+                    : 'border-amber-200/50 dark:border-amber-900/30 bg-amber-50/20 dark:bg-amber-950/10'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
+                        d.status === 'solved'
+                          ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400'
+                          : 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400'
+                      }`}>
+                        {d.status === 'solved' ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                        {d.status === 'solved' ? 'Solved' : 'Pending'}
+                      </span>
+                      {d.materialTitle && d.materialTitle !== 'General Doubt' && (
+                        <span className="text-[9px] text-slate-400 font-bold">{d.materialTitle}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{d.question}</p>
+                    <span className="text-[9px] text-slate-400 mt-1 block">
+                      {new Date(d.createdAt).toLocaleDateString('gu-IN')} • {new Date(d.createdAt).toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Admin Reply */}
+                {d.status === 'solved' && d.adminReply && (
+                  <div className="mt-3 rounded-xl bg-emerald-100/50 dark:bg-emerald-950/20 border border-emerald-200/40 dark:border-emerald-800/30 p-3">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white text-[8px] font-black">A</div>
+                      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">Admin Reply</span>
+                    </div>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{d.adminReply}</p>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ============ STUDENT ACTIVITY REPORT ============ */}
+      <div className="glass rounded-3xl p-6 border border-slate-200/50 dark:border-slate-800/50 space-y-5 shadow-sm bg-gradient-to-br from-cyan-500/5 to-blue-500/5 animate-scale-in">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-100 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400">
+              <BarChart3 className="h-4.5 w-4.5" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm text-slate-800 dark:text-white">Activity Report (પ્રગતિ રિપોર્ટ)</h3>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500">તમારી study activity track કરો</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 rounded-xl bg-slate-100 dark:bg-slate-800 p-1 border border-slate-200/50 dark:border-slate-700/50">
+            {['today', 'week', 'month'].map((p) => (
+              <button
+                key={p}
+                onClick={() => setActivityPeriod(p)}
+                className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition-all ${
+                  activityPeriod === p
+                    ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/20'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                {p === 'today' ? 'Today' : p === 'week' ? 'Week' : 'Month'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Summary Stats */}
+        {loadingActivity ? (
+          <div className="text-center py-6 text-slate-400 text-xs">Loading report...</div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-darkbg-200/50 p-3 text-center space-y-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-500 mx-auto">
+                  <FileText className="h-4 w-4" />
+                </div>
+                <p className="text-lg font-black text-slate-800 dark:text-white">{activityReport?.pdfViews || 0}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">PDFs Read</p>
+              </div>
+              <div className="rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-darkbg-200/50 p-3 text-center space-y-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-100 dark:bg-rose-900/40 text-rose-500 mx-auto">
+                  <Play className="h-4 w-4" />
+                </div>
+                <p className="text-lg font-black text-slate-800 dark:text-white">{activityReport?.videoWatches || 0}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Videos</p>
+              </div>
+              <div className="rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-darkbg-200/50 p-3 text-center space-y-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-500 mx-auto">
+                  <Award className="h-4 w-4" />
+                </div>
+                <p className="text-lg font-black text-slate-800 dark:text-white">{activityReport?.quizAttempts || 0}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Quizzes</p>
+              </div>
+              <div className="rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-darkbg-200/50 p-3 text-center space-y-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-500 mx-auto">
+                  <Download className="h-4 w-4" />
+                </div>
+                <p className="text-lg font-black text-slate-800 dark:text-white">{activityReport?.downloads || 0}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Downloads</p>
+              </div>
+              <div className="rounded-2xl border border-slate-100 dark:border-slate-800/60 bg-white/50 dark:bg-darkbg-200/50 p-3 text-center space-y-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-900/40 text-violet-500 mx-auto">
+                  <MessageCircle className="h-4 w-4" />
+                </div>
+                <p className="text-lg font-black text-slate-800 dark:text-white">{activityReport?.doubtsAsked || 0}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Doubts</p>
+              </div>
+            </div>
+
+            {/* Activity Timeline */}
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {activityList.length === 0 ? (
+                <div className="text-center py-6 text-slate-400 text-xs">
+                  <BarChart3 className="h-8 w-8 mx-auto mb-2 text-slate-300" />
+                  {activityPeriod === 'today' ? 'આજે' : activityPeriod === 'week' ? 'આ અઠવાડિયે' : 'આ મહિને'} કોઈ activity record નથી.
+                </div>
+              ) : (
+                activityList.slice(0, 20).map((act, idx) => {
+                  const icons = {
+                    pdf_view: { icon: FileText, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30', label: 'PDF Viewed' },
+                    video_watch: { icon: Play, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/30', label: 'Video Watched' },
+                    quiz_attempt: { icon: Award, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/30', label: 'Quiz Played' },
+                    material_download: { icon: Download, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30', label: 'Downloaded' },
+                    doubt_asked: { icon: MessageCircle, color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/30', label: 'Doubt Asked' },
+                    login: { icon: User, color: 'text-slate-500 bg-slate-50 dark:bg-slate-800/30', label: 'Logged In' },
+                  };
+                  const config = icons[act.actionType] || icons.login;
+                  const IconComp = config.icon;
+                  return (
+                    <div key={act._id || idx} className="flex items-center gap-3 py-2 border-b border-slate-100 dark:border-slate-800/40 last:border-0">
+                      <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${config.color}`}>
+                        <IconComp className="h-3.5 w-3.5" />
+                      </div>
+                      <div className="flex-1 truncate">
+                        <p className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">
+                          {config.label}{act.title ? `: ${act.title}` : ''}
+                        </p>
+                        <span className="text-[9px] text-slate-400">
+                          {new Date(act.createdAt).toLocaleDateString('gu-IN')} {new Date(act.createdAt).toLocaleTimeString('gu-IN', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
       {activeVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in">
           <div className="relative w-full max-w-3xl rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass animate-scale-in">
