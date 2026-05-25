@@ -153,7 +153,7 @@ exports.createMaterial = async (req, res) => {
     if (type === 'video') {
       materialResourceType = 'video';
     } else if (type === 'pdf') {
-      materialResourceType = 'raw';
+      materialResourceType = 'image';
     }
 
     console.log(`Uploading file ${file.originalname} as ${materialResourceType}...`);
@@ -261,7 +261,7 @@ exports.deleteMaterial = async (req, res) => {
 
     // 1. Delete associated file from storage
     if (material.filePublicId) {
-      const fileType = material.type === 'video' ? 'video' : 'raw';
+      const fileType = material.type === 'video' ? 'video' : (material.type === 'pdf' ? 'image' : 'raw');
       await deleteFile(material.filePublicId, fileType);
     }
 
