@@ -22,9 +22,13 @@ import { ExternalLink, Download, X, FileText, RefreshCw, Maximize2, Minimize2, A
 
 const normalizeUrl = (fileUrl, serverUrl) => {
   if (!fileUrl || fileUrl === '#locked') return null;
-  if (fileUrl.startsWith('http')) return fileUrl;
-  if (fileUrl.startsWith('/uploads')) return `${serverUrl}${fileUrl}`;
-  return fileUrl;
+  let url = fileUrl;
+  if (url.includes('fl_attachment:false')) {
+    url = url.replace(/fl_attachment:false\/?/, '');
+  }
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('/uploads')) return `${serverUrl}${url}`;
+  return url;
 };
 
 export default function PdfViewer({
@@ -45,10 +49,11 @@ export default function PdfViewer({
   const blobUrlRef = useRef(null); // track for cleanup
 
   const pdfUrl = normalizeUrl(activePdf?.fileUrl, serverUrl);
+  const proxyUrl = `${serverUrl}/api/materials/${activePdf?._id}/view`;
 
-  // Step 1: Fetch PDF as blob, create blob: URL
+  // Step 1: Fetch PDF as blob, create blob: URL via secure backend proxy
   useEffect(() => {
-    if (!pdfUrl) return;
+    if (!proxyUrl || !activePdf?._id) return;
 
     let cancelled = false;
     setLoadState('fetching');
@@ -63,10 +68,13 @@ export default function PdfViewer({
 
     const fetchPdf = async () => {
       try {
-        const response = await fetch(pdfUrl, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(proxyUrl, {
           method: 'GET',
-          headers: { 'Accept': 'application/pdf,*/*' },
-          // No credentials needed for Cloudinary public files
+          headers: { 
+            'Accept': 'application/pdf,*/*',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
         });
 
         if (!response.ok) {
@@ -96,7 +104,7 @@ export default function PdfViewer({
     return () => {
       cancelled = true;
     };
-  }, [pdfUrl, retryCount]);
+  }, [proxyUrl, retryCount, activePdf?._id]);
 
   // Cleanup blob URL on unmount or PDF change
   useEffect(() => {

@@ -40,8 +40,32 @@ const seedAdminAccount = async () => {
   }
 };
 
-// Run seeder once DB is ready
-setTimeout(seedAdminAccount, 3000);
+// Database repair script for broken fl_attachment:false URLs
+const repairMaterialUrls = async () => {
+  try {
+    const Material = require('./models/Material');
+    const brokenMaterials = await Material.find({ fileUrl: { $regex: 'fl_attachment:false' } });
+    if (brokenMaterials.length > 0) {
+      console.log(`[DB Repair] Found ${brokenMaterials.length} materials with broken fl_attachment flag in URL.`);
+      for (const mat of brokenMaterials) {
+        const oldUrl = mat.fileUrl;
+        mat.fileUrl = oldUrl.replace(/fl_attachment:false\/?/, '');
+        await mat.save();
+        console.log(`[DB Repair] Repaired: ${oldUrl} -> ${mat.fileUrl}`);
+      }
+    } else {
+      console.log('[DB Repair] No broken PDF URLs found. System is clean.');
+    }
+  } catch (error) {
+    console.error('[DB Repair Alert] Failed to run database URL repair:', error.message);
+  }
+};
+
+// Run seeder and DB repairs once database connection is ready
+setTimeout(() => {
+  seedAdminAccount();
+  repairMaterialUrls();
+}, 3000);
 
 const app = express();
 

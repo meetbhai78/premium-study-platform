@@ -279,3 +279,83 @@ exports.deleteMaterial = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Securely view/stream PDF material as inline stream (bypasses CORS & Content-Disposition: attachment)
+// @route   GET /api/materials/:id/view
+// @access  Private (Registered & Authorized Users)
+exports.viewMaterialPdf = async (req, res) => {
+  try {
+    const https = require('https');
+    const http = require('http');
+    const path = require('path');
+
+    const material = await Material.findById(req.params.id);
+
+    if (!material) {
+      return res.status(404).json({ success: false, message: 'Material not found' });
+    }
+
+    const user = req.user;
+    const isPremiumMaterial = material.accessType === 'premium';
+    const hasAccess = user.premium || user.role === 'admin';
+
+    if (isPremiumMaterial && !hasAccess) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Premium subscription required to view this material.',
+        isLocked: true,
+      });
+    }
+
+    let pdfUrl = material.fileUrl;
+    if (!pdfUrl || pdfUrl === '#locked') {
+      return res.status(400).json({ success: false, message: 'Invalid or locked file URL' });
+    }
+
+    // Dynamic sanitation to support pre-repaired and cached broken URLs
+    if (pdfUrl.includes('fl_attachment:false')) {
+      pdfUrl = pdfUrl.replace(/fl_attachment:false\/?/, '');
+    }
+
+    // Local file streaming handler
+    if (pdfUrl.startsWith('/uploads')) {
+      const filePath = path.resolve(__dirname, '../../public', pdfUrl.substring(1));
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ success: false, message: 'Local PDF file not found' });
+      }
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline');
+      return res.sendFile(filePath);
+    }
+
+    // External Cloudinary file streaming proxy handler
+    if (pdfUrl.startsWith('http')) {
+      const client = pdfUrl.startsWith('https') ? https : http;
+      
+      client.get(pdfUrl, (externalRes) => {
+        if (externalRes.statusCode !== 200) {
+          console.error(`[PDF Proxy] External storage responded with status: ${externalRes.statusCode}`);
+          return res.status(externalRes.statusCode).json({
+            success: false,
+            message: `External storage returned status ${externalRes.statusCode}`
+          });
+        }
+
+        // Set response headers to force inline rendering and allow broad frame embedding
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
+        externalRes.pipe(res);
+      }).on('error', (err) => {
+        console.error('[PDF Proxy Error] Dynamic streaming failed:', err);
+        res.status(500).json({ success: false, message: 'Failed to stream PDF from storage' });
+      });
+    } else {
+      res.status(400).json({ success: false, message: 'Unsupported file storage scheme' });
+    }
+  } catch (error) {
+    console.error('[PDF Proxy Boundary Error]:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

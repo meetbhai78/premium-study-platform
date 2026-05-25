@@ -7,6 +7,7 @@ const {
   createMaterial,
   updateMaterial,
   deleteMaterial,
+  viewMaterialPdf,
 } = require('../controllers/materialController');
 const { protect, admin } = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -14,6 +15,7 @@ const upload = require('../middleware/upload');
 // User standard routes
 router.get('/', protect, getMaterials);
 router.get('/:id', protect, getMaterialById);
+router.get('/:id/view', protect, viewMaterialPdf);
 router.post('/:id/download', protect, incrementDownload);
 
 // Admin-guarded resource uploads
