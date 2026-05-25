@@ -1268,20 +1268,8 @@ export default function UserDashboard() {
         const pdfUrl = activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads')
           ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`)
           : activePdf.fileUrl;
-        const isLocalUrl = (() => {
-          if (!pdfUrl) return false;
-          try {
-            const hostname = new URL(pdfUrl).hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return true;
-            if (hostname.startsWith('10.') || hostname.startsWith('192.168.')) return true;
-            if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)) return true;
-            return false;
-          } catch (e) {
-            return true; // Relative paths are local
-          }
-        })();
-        // Load directly for local network files, and use Google Docs Viewer proxy for public live files to support mobile/desktop layout stability
-        const iframeSrc = isLocalUrl ? pdfUrl : `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+        // Use Google Docs Viewer cloud proxy universally to guarantee inline mobile/desktop rendering stability
+        const iframeSrc = `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
 
         return (
           <div className={isPdfFullScreen ? "fixed inset-0 z-50 bg-white dark:bg-darkbg-200 flex flex-col justify-between animate-scale-in" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-2 sm:p-4 animate-scale-in"}>
