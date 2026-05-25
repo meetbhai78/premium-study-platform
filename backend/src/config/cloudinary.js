@@ -46,10 +46,19 @@ const uploadFile = async (filePath, folder = 'study_materials', resourceType = '
   }
 
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
+    const uploadOptions = {
       folder,
       resource_type: resourceType,
-    });
+    };
+
+    // For PDF/raw files: set access_control to public and disable attachment download header
+    // so the file can be embedded inline in an iframe without Content-Disposition:attachment
+    if (resourceType === 'raw') {
+      uploadOptions.access_control = [{ access_type: 'anonymous' }];
+      uploadOptions.flags = 'attachment:false';
+    }
+
+    const result = await cloudinary.uploader.upload(filePath, uploadOptions);
     return {
       secure_url: result.secure_url,
       public_id: result.public_id,
