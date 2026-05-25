@@ -1299,6 +1299,17 @@ export default function UserDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
+                  {/* Open in New Tab native PDF viewer fallback */}
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 sm:gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 px-2.5 sm:px-3.5 py-2 text-[10px] sm:text-xs font-bold text-white transition-all shadow-md shadow-emerald-500/20 focus:outline-none"
+                  >
+                    <ExternalLink className="h-3 sm:h-3.5 w-3 sm:w-3.5" />
+                    <span>Open PDF</span>
+                  </a>
+
                   {/* In-App Full Screen View Toggle (No Browser Redirection!) */}
                   <button
                     onClick={() => setIsPdfFullScreen(!isPdfFullScreen)}

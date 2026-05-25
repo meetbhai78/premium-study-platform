@@ -73,6 +73,8 @@ const uploadLimiter = rateLimit({
 // Security and utility middlewares
 app.use(helmet({
   crossOriginResourcePolicy: false, // Allows cross-origin image loads for local files
+  contentSecurityPolicy: false,     // Disable CSP to allow iframe cross-origin content loading
+  frameguard: false,                // Disable frameguard to allow local files embedding in iframe
 }));
 
 app.use(cors({
