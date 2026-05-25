@@ -493,8 +493,8 @@ export default function Materials() {
             return true; // Relative paths are local
           }
         })();
-        // Load the PDF directly for absolute universal access (no external Google rate-limits or blocks)
-        const iframeSrc = pdfUrl;
+        // Load directly for local files, and use Google Docs Viewer proxy for public files to bypass third-party domain frame blocks
+        const iframeSrc = isLocalUrl ? pdfUrl : `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
 
         return (
           <div className={isPdfFullScreen ? "fixed inset-0 z-50 bg-white dark:bg-darkbg-200 flex flex-col justify-between animate-scale-in" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-2 sm:p-4 animate-scale-in"}>
