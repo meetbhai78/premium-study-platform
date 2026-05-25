@@ -481,17 +481,10 @@ export default function Materials() {
         const pdfUrl = activePdf.fileUrl.startsWith('http') || activePdf.fileUrl.startsWith('/uploads')
           ? (activePdf.fileUrl.startsWith('http') ? activePdf.fileUrl : `${SERVER_URL}${activePdf.fileUrl}`)
           : activePdf.fileUrl;
-        const isLocalOrOwnServer = (() => {
+        const isLocalUrl = (() => {
           if (!pdfUrl) return false;
           try {
-            const urlObj = new URL(pdfUrl);
-            const hostname = urlObj.hostname;
-            let serverHost = '';
-            try {
-              serverHost = new URL(SERVER_URL).hostname;
-            } catch (err) {}
-            
-            if (serverHost && hostname === serverHost) return true;
+            const hostname = new URL(pdfUrl).hostname;
             if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') return true;
             if (hostname.startsWith('10.') || hostname.startsWith('192.168.')) return true;
             if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)) return true;
@@ -500,8 +493,8 @@ export default function Materials() {
             return true; // Relative paths are local
           }
         })();
-        // Load directly for local/own server files, and use Google Docs Viewer proxy for third-party files to bypass domain frame blocks
-        const iframeSrc = isLocalOrOwnServer ? pdfUrl : `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+        // Load directly for local network files, and use Google Docs Viewer proxy for public live files to support mobile/desktop layout stability
+        const iframeSrc = isLocalUrl ? pdfUrl : `https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
 
         return (
           <div className={isPdfFullScreen ? "fixed inset-0 z-50 bg-white dark:bg-darkbg-200 flex flex-col justify-between animate-scale-in" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-2 sm:p-4 animate-scale-in"}>
