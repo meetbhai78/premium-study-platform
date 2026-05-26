@@ -120,7 +120,7 @@ export default function PaymentPage() {
       <div className="border-b border-slate-100 dark:border-slate-800 pb-6 text-center max-w-xl mx-auto">
         <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/10 dark:bg-amber-400/20 px-3.5 py-1 text-xs font-bold text-amber-500 mb-3 premium-glow">
           <Sparkles className="h-3.5 w-3.5 fill-amber-400" />
-          ₹50 Premium Vault Access
+          ₹{upiInfo?.amount || 99} Premium Vault Access
         </span>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800 dark:text-white font-sans tracking-tight">
           Unlock Premium Study Pro

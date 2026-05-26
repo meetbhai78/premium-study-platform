@@ -386,7 +386,7 @@ export default function UserDashboard() {
                 પેમેન્ટ વેરિફિકેશન પ્રક્રિયામાં છે
               </h2>
               <p className="text-xs text-slate-350 leading-relaxed max-w-xl">
-                અમને તમારી ₹50 ટ્રાન્ઝેક્શન સ્ક્રીનશોટ રસીદ મળી છે. એડમિનિસ્ટ્રેટર હાલમાં તેની ચકાસણી કરી રહ્યા છે. આગામી 1-2 કલાકમાં પ્રીમિયમ સેવાઓ સક્રિય થઈ જશે.
+                અમને તમારી ₹99 ટ્રાન્ઝેક્શન સ્ક્રીનશોટ રસીદ મળી છે. એડમિનિસ્ટ્રેટર હાલમાં તેની ચકાસણી કરી રહ્યા છે. આગામી 1-2 કલાકમાં પ્રીમિયમ સેવાઓ સક્રિય થઈ જશે.
               </p>
             </div>
             <div className="md:col-span-2 flex justify-center items-center">
@@ -450,14 +450,14 @@ export default function UserDashboard() {
               ધોરણ 9-10 અને સરકારી પરીક્ષાની શ્રેષ્ઠ તૈયારી
             </h2>
             <p className="text-xs sm:text-sm text-indigo-105 leading-relaxed max-w-xl">
-              નમસ્તે, તમારા ઉજ્જવળ ભવિષ્ય અને શ્રેષ્ઠ તૈયારી માટે આજે જ જોડાવ. માત્ર ₹50 ચૂકવીને આજીવન તમામ મટીરીયલ્સ ડાઉનલોડ કરો.
+              નમસ્તે, તમારા ઉજ્જવળ ભવિષ્ય અને શ્રેષ્ઠ તૈયારી માટે આજે જ જોડાવ. માત્ર ₹99 ચૂકવીને આજીવન તમામ મટીરીયલ્સ ડાઉનલોડ કરો.
             </p>
             <div className="pt-2 flex flex-wrap justify-center md:justify-start gap-2.5">
               <Link
                 to="/payment"
                 className="rounded-2xl bg-amber-400 px-5 py-3 text-xs font-black text-slate-900 shadow-md hover:bg-amber-305 hover:-translate-y-0.5 transition-all premium-glow animate-pulse"
               >
-                પ્રીમિયમ સભ્ય બનો (₹50 માત્ર)
+                પ્રીમિયમ સભ્ય બનો (₹99 માત્ર)
               </Link>
             </div>
           </div>
