@@ -20,6 +20,10 @@ import { ExternalLink, Download, X, FileText, RefreshCw, Maximize2, Minimize2, A
  *   - Works 100% of the time as long as CORS is allowed (Cloudinary allows CORS by default)
  */
 
+const isMobile = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 const normalizeUrl = (fileUrl, serverUrl) => {
   if (!fileUrl || fileUrl === '#locked') return null;
   let url = fileUrl;
@@ -51,8 +55,16 @@ export default function PdfViewer({
   const pdfUrl = normalizeUrl(activePdf?.fileUrl, serverUrl);
   const proxyUrl = `${serverUrl}/api/materials/${activePdf?._id}/view`;
 
+  const isLocal = pdfUrl && !pdfUrl.startsWith('http');
+  const useGview = isMobile() && !isLocal;
+
   // Step 1: Fetch PDF as blob, create blob: URL via secure backend proxy
   useEffect(() => {
+    if (useGview) {
+      setLoadState('loaded');
+      return;
+    }
+
     if (!proxyUrl || !activePdf?._id) return;
 
     let cancelled = false;
@@ -322,17 +334,27 @@ export default function PdfViewer({
             </div>
           )}
 
-          {/* Iframe — renders the blob: URL (always inline, no Content-Disposition issues) */}
-          {blobUrl && (
+          {/* Iframe — renders either the local blob URL or the Google Docs Viewer on mobile */}
+          {useGview ? (
             <iframe
-              key={`pdf-blob-${activePdf._id}-r${retryCount}`}
-              src={blobUrl}
-              className={`w-full h-full border-none transition-opacity duration-300 ${
-                isError ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              }`}
+              key={`pdf-gview-${activePdf._id}`}
+              src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+              className="w-full h-full border-none bg-slate-50 dark:bg-slate-900"
               title={activePdf.title}
               onLoad={handleIframeLoad}
             />
+          ) : (
+            blobUrl && (
+              <iframe
+                key={`pdf-blob-${activePdf._id}-r${retryCount}`}
+                src={blobUrl}
+                className={`w-full h-full border-none transition-opacity duration-300 ${
+                  isError ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}
+                title={activePdf.title}
+                onLoad={handleIframeLoad}
+              />
+            )
           )}
         </div>
 
