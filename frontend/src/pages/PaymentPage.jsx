@@ -53,6 +53,96 @@ export default function PaymentPage() {
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true);
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleRazorpayPayment = async () => {
+    setIsSubmitting(true);
+    setError('');
+
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Failed to load Razorpay payment SDK. Check your internet connection.');
+      }
+
+      // 1. Create order on backend
+      const orderRes = await axios.post(`${API_URL}/payments/razorpay/order`);
+      if (!orderRes.data || !orderRes.data.success) {
+        throw new Error('Failed to generate payment order. Try again.');
+      }
+
+      const orderData = orderRes.data.data;
+
+      // 2. Configure checkout options
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'EDUCATION07_',
+        description: 'Lifetime Premium Subscription',
+        order_id: orderData.orderId,
+        handler: async function (response) {
+          setIsSubmitting(true);
+          try {
+            // 3. Verify signature on backend
+            const verifyRes = await axios.post(`${API_URL}/payments/razorpay/verify`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verifyRes.data && verifyRes.data.success) {
+              setSuccess(true);
+              refreshUser();
+              setTimeout(() => {
+                navigate('/dashboard');
+              }, 4000);
+            } else {
+              throw new Error('Payment signature verification failed.');
+            }
+          } catch (err) {
+            console.error('Verification failed:', err);
+            setError(err.response?.data?.message || 'Payment verification failed. Contact admin with payment ID.');
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+          contact: user?.mobile || '',
+        },
+        notes: {
+          userId: user?._id || '',
+        },
+        theme: {
+          color: '#6366f1', // Indigo accent
+        },
+        modal: {
+          ondismiss: function () {
+            setIsSubmitting(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error('Razorpay payment failed:', err);
+      setError(err.message || 'Payment initialization failed.');
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!screenshot) {
@@ -136,6 +226,39 @@ export default function PaymentPage() {
           <span>{error}</span>
         </div>
       )}
+
+      {/* ⚡ Instant & Automated Checkout Card */}
+      <div className="max-w-2xl mx-auto rounded-3xl bg-gradient-to-tr from-premium-500 via-indigo-600 to-indigo-700 text-white p-6 sm:p-8 shadow-xl shadow-premium-500/10 border border-premium-400/25 relative overflow-hidden animate-scale-in">
+        <div className="absolute inset-0 bg-grid-white/[0.03] bg-[size:16px_16px]" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2.5 text-center md:text-left">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 border border-amber-400/35 px-3 py-0.5 text-[9px] font-black text-amber-400 uppercase tracking-wide">
+              ⚡ Instant Unlock
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
+              ઓટોમેટિક પ્રીમિયમ ચાલુ કરો
+            </h2>
+            <p className="text-xs text-indigo-100 max-w-md">
+              UPI, Netbanking, Card અથવા Wallets વડે સુરક્ષિત ઓનલાઈન પેમેન્ટ કરો. પેમેન્ટ થતા જ તમારું એકાઉન્ટ આપમેળે ત્વરિત એક્ટિવેટ થઈ જશે!
+            </p>
+          </div>
+          <button
+            onClick={handleRazorpayPayment}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 rounded-2xl bg-amber-400 px-6 py-4 text-sm font-black text-slate-900 shadow-lg shadow-amber-500/20 hover:bg-amber-300 disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0 transition-all shrink-0"
+          >
+            {isSubmitting ? 'પ્રોસેસિંગ...' : `Pay ₹${upiInfo?.amount || 99} Securely`}
+            <ArrowRight className="h-4.5 w-4.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Or Divider */}
+      <div className="max-w-2xl mx-auto flex items-center gap-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest py-2">
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+        <span>અથવા (Or manual backup)</span>
+        <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+      </div>
 
       {/* Double Column Flow */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
