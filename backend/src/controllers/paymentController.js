@@ -23,15 +23,14 @@ exports.getUPIDetails = async (req, res) => {
     const merchantName = process.env.UPI_MERCHANT_NAME || 'Premium Study Platform';
     const amount = process.env.UPI_AMOUNT || '99';
 
-    // Encode parameters for standard UPI deep link protocol
-    // Format: upi://pay?pa=address&pn=name&am=amount&cu=INR
-    const encodedName = encodeURIComponent(merchantName);
-    const deepLink = `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amount}&cu=INR`;
+    // Clean payee name formatting for strict UPI compliance (no spaces or %20, use + instead)
+    const cleanNameForUpi = merchantName.trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '+');
+    const deepLink = `upi://pay?pa=${upiId}&pn=${cleanNameForUpi}&am=${amount}&cu=INR`;
 
     // Individual app deep links (Android-ready anchors)
-    const gpayLink = `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amount}&cu=INR`;
-    const phonepeLink = `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amount}&cu=INR`;
-    const paytmLink = `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amount}&cu=INR`;
+    const gpayLink = `upi://pay?pa=${upiId}&pn=${cleanNameForUpi}&am=${amount}&cu=INR`;
+    const phonepeLink = `upi://pay?pa=${upiId}&pn=${cleanNameForUpi}&am=${amount}&cu=INR`;
+    const paytmLink = `upi://pay?pa=${upiId}&pn=${cleanNameForUpi}&am=${amount}&cu=INR`;
 
     res.status(200).json({
       success: true,
@@ -46,7 +45,7 @@ exports.getUPIDetails = async (req, res) => {
           paytm: paytmLink,
         },
         // We can display a custom QR code matching this UPI ID
-        qrCodePayload: `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amount}&cu=INR`,
+        qrCodePayload: `upi://pay?pa=${upiId}&pn=${cleanNameForUpi}&am=${amount}&cu=INR`,
       },
     });
   } catch (error) {
