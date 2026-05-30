@@ -19,7 +19,7 @@ const cleanTempFile = (filePath) => {
 // @access  Private (Registered Users)
 exports.getUPIDetails = async (req, res) => {
   try {
-    const upiId = process.env.UPI_ID || 'studyplatform@upi';
+    const upiId = process.env.UPI_ID || 'chaudharinikunjkumarvajesingb@razorpay';
     const merchantName = process.env.UPI_MERCHANT_NAME || 'Premium Study Platform';
     const amount = process.env.UPI_AMOUNT || '99';
 
