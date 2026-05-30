@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../context/AuthContext';
-import { QrCode, Upload, CheckCircle2, ShieldCheck, Sparkles, Smartphone, ArrowRight, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { QrCode, Upload, CheckCircle2, ShieldCheck, Sparkles, Smartphone, ArrowRight, Image as ImageIcon, AlertCircle, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function PaymentPage() {
@@ -245,6 +245,38 @@ export default function PaymentPage() {
         <p className="text-xs text-slate-400 mt-1 dark:text-slate-500">
           Make a payment using any UPI method, upload receipt, and access premium materials immediately.
         </p>
+      </div>
+
+      {/* 📘 Step-by-Step Payment Guide */}
+      <div className="max-w-2xl mx-auto glass rounded-3xl p-5 border border-slate-200/60 dark:border-slate-800/60 space-y-4 shadow-sm animate-scale-in">
+        <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-premium-500" />
+          પેમેન્ટ માર્ગદર્શિકા — કઈ રીત પસંદ કરવી? (Payment Guide)
+        </h3>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px] leading-relaxed">
+          {/* Method 1 instruction */}
+          <div className="rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/10 p-3.5 border border-emerald-100/50 dark:border-emerald-900/20 space-y-1">
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-extrabold text-emerald-600 dark:text-emerald-400 text-[9px] uppercase tracking-wide">
+              રીત ૧: Secure Payment ⚡
+            </span>
+            <h4 className="font-extrabold text-slate-800 dark:text-slate-200 mt-1">આપોઆપ એક્ટિવેશન (Instant & Automatic)</h4>
+            <p className="text-slate-500 dark:text-slate-400">
+              નીચેના **"Pay Securely"** બટન પર ક્લિક કરીને ઓનલાઈન પેમેન્ટ કરો. પેમેન્ટ પૂરું થતાં જ તમારું એકાઉન્ટ **આપોઆપ ૨ સેકન્ડમાં પ્રીમિયમ** થઈ જશે! કોઈ સ્ક્રીનશોટ મોકલવાની જરૂર નથી.
+            </p>
+          </div>
+
+          {/* Method 2 instruction */}
+          <div className="rounded-2xl bg-amber-50/40 dark:bg-amber-950/10 p-3.5 border border-amber-100/50 dark:border-amber-900/20 space-y-1">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 font-extrabold text-amber-600 dark:text-amber-400 text-[9px] uppercase tracking-wide">
+              રીત ૨: UPI QR Code 📲
+            </span>
+            <h4 className="font-extrabold text-slate-800 dark:text-slate-200 mt-1">મેન્યુઅલ વેરિફિકેશન (Manual ScreenShot)</h4>
+            <p className="text-slate-500 dark:text-slate-400">
+              આપેલા QR કોડને સ્કેન કરીને ડાયરેક્ટ પેમેન્ટ કરો. પેમેન્ટ થઈ ગયા પછી **સ્ક્રીનશોટ પાડીને જમણી બાજુ અપલોડ કરો.** એડમિન વેરિફાય કરીને થોડા સમયમાં તમારું પ્રીમિયમ ચાલુ કરશે.
+            </p>
+          </div>
+        </div>
       </div>
 
       {error && (
