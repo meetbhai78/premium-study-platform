@@ -14,6 +14,7 @@ export default function PaymentPage() {
   const [transactionId, setTransactionId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [instantSuccess, setInstantSuccess] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -101,7 +102,7 @@ export default function PaymentPage() {
             });
 
             if (verifyRes.data && verifyRes.data.success) {
-              setSuccess(true);
+              setInstantSuccess(true);
               refreshUser();
               setTimeout(() => {
                 navigate('/dashboard');
@@ -185,19 +186,45 @@ export default function PaymentPage() {
     );
   }
 
+  if (instantSuccess) {
+    return (
+      <div className="max-w-md mx-auto my-16 px-6 text-center space-y-6 animate-scale-in">
+        <div className="flex h-24 w-24 mx-auto items-center justify-center rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30">
+          <Sparkles className="h-14 w-14" />
+        </div>
+        <div>
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3.5 py-1 text-xs font-black text-emerald-500 mb-3">
+            ⚡ Premium Activated!
+          </span>
+          <h2 className="text-2xl font-black text-slate-800 dark:text-white">🎉 Welcome to Premium!</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mt-2">
+            તમારું Razorpay Payment Successful! <br />
+            <strong className="text-emerald-500">Premium Access ત્વરિત ચાલુ થઈ ગઈ છે!</strong><br />
+            Dashboard ઉપર redirect થઈ રહ્યું છે...
+          </p>
+        </div>
+        <div className="pt-2">
+          <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden dark:bg-slate-800">
+            <div className="h-full bg-emerald-500 animate-pulse w-full rounded-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="max-w-md mx-auto my-16 px-6 text-center space-y-6 animate-scale-in">
-        <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-3xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 premium-glow">
+        <div className="flex h-20 w-20 mx-auto items-center justify-center rounded-3xl bg-indigo-500 text-white shadow-lg shadow-indigo-500/25">
           <CheckCircle2 className="h-12 w-12" />
         </div>
-        <h2 className="text-2xl font-black text-slate-800 dark:text-white">Request Submitted!</h2>
+        <h2 className="text-2xl font-black text-slate-800 dark:text-white">Receipt Submitted!</h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          Your payment receipt has been successfully uploaded. Our team is manually verifying the transaction details. You will be automatically redirected to your dashboard now.
+          Payment receipt upload successful! Admin will verify shortly and activate your premium access. Dashboard ઉપર redirect થઈ રહ્યું છે...
         </p>
         <div className="pt-4">
           <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden dark:bg-slate-800">
-            <div className="h-full bg-emerald-500 animate-pulse w-full rounded-full transition-all duration-3000" />
+            <div className="h-full bg-indigo-500 animate-pulse w-full rounded-full" />
           </div>
         </div>
       </div>
@@ -284,7 +311,7 @@ export default function PaymentPage() {
 
           <div className="text-center space-y-1">
             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              Amount to Pay: ₹{upiInfo?.amount || 50}
+              Amount to Pay: ₹{upiInfo?.amount || 99}
             </p>
             <p className="text-[10px] text-slate-400">
               Merchant: {upiInfo?.merchantName || 'Premium Study Platform'}
