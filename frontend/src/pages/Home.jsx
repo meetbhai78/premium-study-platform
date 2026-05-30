@@ -54,7 +54,7 @@ export default function Home() {
           <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-800 dark:text-white font-sans">
             Premium Study Materials <br />
             <span className="bg-gradient-to-r from-premium-500 via-pink-500 to-indigo-500 bg-clip-text text-transparent">
-              Unlocked at ₹50 Only
+              Unlocked at ₹99 Only
             </span>
           </h1>
 
@@ -167,7 +167,7 @@ export default function Home() {
           </span>
           <h2 className="text-3xl sm:text-4xl font-extrabold">All-Access Premium Pass</h2>
           <p className="text-sm text-purple-100 max-w-lg mx-auto">
-            Pay ₹50 only. No recurring subscriptions, no processing fees. Remove ads, enable all downloads, and view premium mock papers.
+            Pay ₹99 only. No recurring subscriptions, no processing fees. Remove ads, enable all downloads, and view premium mock papers.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
