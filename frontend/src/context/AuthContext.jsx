@@ -1,6 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
+// ─── Capacitor Native Ad Bridge ────────────────────────────────────────────────
+// Controls Start.io native banner in Android APK based on premium status
+const controlNativeAds = async (isPremium) => {
+  try {
+    // Only runs inside Android APK (Capacitor WebView)
+    if (!window.Capacitor || !window.Capacitor.isNativePlatform()) return;
+    const { Plugins } = window.Capacitor;
+    if (!Plugins || !Plugins.AdControl) return;
+    if (isPremium) {
+      await Plugins.AdControl.hideAds();  // Premium → hide Start.io ads
+    } else {
+      await Plugins.AdControl.showAds();  // Free    → show Start.io ads
+    }
+  } catch (e) {
+    // Silently fail — never block UI for ad errors
+  }
+};
+
 const AuthContext = createContext();
 
 // Default API URL (Dynamic relative fallback for Monolith, with custom live path for Android APK compatibility)
@@ -45,7 +63,10 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
       const response = await axios.get(`${API_URL}/auth/me`);
       if (response.data && response.data.success) {
-        setUser(response.data.user);
+        const userData = response.data.user;
+        setUser(userData);
+        // Control native Start.io ads in Android APK
+        controlNativeAds(userData?.premium === true || userData?.role === 'admin');
       } else {
         clearAuth();
       }
@@ -83,6 +104,8 @@ export const AuthProvider = ({ children }) => {
         setToken(userToken);
         setUser(userData);
         axios.defaults.headers.common['Authorization'] = `Bearer ${userToken}`;
+        // Control native ads on login
+        controlNativeAds(userData?.premium === true || userData?.role === 'admin');
         return { success: true };
       }
       return { success: false, message: 'Invalid server response' };
@@ -111,6 +134,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    controlNativeAds(false); // Show ads again on logout (user becomes free)
     clearAuth();
   };
 
@@ -119,7 +143,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.get(`${API_URL}/auth/me`);
       if (response.data && response.data.success) {
-        setUser(response.data.user);
+        const userData = response.data.user;
+        setUser(userData);
+        // Sync native ad visibility with latest premium status
+        controlNativeAds(userData?.premium === true || userData?.role === 'admin');
       }
     } catch (error) {
       console.error('Failed to refresh user profile data:', error.message);
