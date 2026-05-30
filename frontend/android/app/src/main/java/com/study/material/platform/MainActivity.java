@@ -105,7 +105,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if (startAppBanner != null && adVisible) {
             startAppBanner.loadAd();
@@ -113,7 +113,7 @@ public class MainActivity extends BridgeActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         if (startAppBanner != null) {
             startAppBanner.hideBanner();
         }
