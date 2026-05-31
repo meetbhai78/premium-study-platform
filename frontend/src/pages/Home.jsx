@@ -26,15 +26,16 @@ export default function Home() {
   ];
 
   const handleShareApp = async () => {
+    const downloadLink = 'https://apkbuild.netlify.app/';
     try {
       await navigator.share({
         title: 'EDUCATION07_ - Premium Study Material App',
         text: 'EDUCATION07_ એપ ડાઉનલોડ કરો! ધોરણ 6 થી 10 અને સરકારી પરીક્ષાઓની શ્રેષ્ઠ તૈયારી. PDFs, Videos, Quizzes - બધું એક જ જગ્યાએ.',
-        url: window.location.origin,
+        url: downloadLink,
       });
     } catch (err) {
       // Fallback: WhatsApp share
-      const msg = encodeURIComponent(`EDUCATION07_ - Premium Study Material App 📚\n\nધોરણ 6 થી 10 અને સરકારી પરીક્ષાઓની શ્રેષ્ઠ તૈયારી.\nPDFs, Videos, Daily Quizzes - બધું Free!\n\n👉 ${window.location.origin}`);
+      const msg = encodeURIComponent(`EDUCATION07_ - Premium Study Material App 📚\n\nધોરણ 6 થી 10 અને સરકારી પરીક્ષાઓની શ્રેષ્ઠ તૈયારી.\nPDFs, Videos, Daily Quizzes - બધું Free!\n\nડાઉનલોડ લિંક 👉 ${downloadLink}`);
       window.open(`https://wa.me/?text=${msg}`, '_blank');
     }
   };
