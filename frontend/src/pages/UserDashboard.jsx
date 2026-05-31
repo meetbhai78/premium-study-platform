@@ -5,7 +5,7 @@ import StatCard from '../components/StatCard';
 import AdBanner from '../components/AdBanner';
 import PdfViewer from '../components/PdfViewer';
 import { NoticeSkeleton, TableRowSkeleton } from '../components/SkeletonLoader';
-import { ShieldCheck, User, Star, Megaphone, Clock, Sparkles, BookOpen, ChevronRight, AlertTriangle, XCircle, FileText, Play, Pause, RotateCcw, Award, Trash2, Eye, X, Film, FolderArchive, Download, MessageCircle, Send, BarChart3, Calendar, CheckCircle2, HelpCircle, ExternalLink } from 'lucide-react';
+import { ShieldCheck, User, Star, Megaphone, Clock, Sparkles, BookOpen, ChevronRight, AlertTriangle, XCircle, FileText, Play, Pause, RotateCcw, Award, Trash2, Eye, X, Film, FolderArchive, Download, MessageCircle, Send, BarChart3, Calendar, CheckCircle2, HelpCircle, ExternalLink, Smartphone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function UserDashboard() {
@@ -495,6 +495,33 @@ export default function UserDashboard() {
           </div>
         </div>
       </div>
+
+      {/* 📱 Download Android APK Callout for Web Users */}
+      {!(window.Capacitor && window.Capacitor.isNativePlatform()) && (
+        <div className="rounded-3xl p-4 sm:p-5 border border-indigo-200/40 bg-gradient-to-r from-indigo-50/50 via-premium-50/20 to-indigo-50/50 dark:from-indigo-950/15 dark:via-premium-950/5 dark:to-indigo-950/15 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 glass animate-scale-in">
+          <div className="flex items-center gap-3.5 text-center sm:text-left flex-col sm:flex-row">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-premium-500 to-indigo-650 text-white shadow-lg shadow-premium-500/20 shrink-0">
+              <Smartphone className="h-5 w-5" />
+            </div>
+            <div className="space-y-0.5">
+              <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">
+                EDUCATION07_ એન્ડ્રોઇડ એપ્લિકેશન ડાઉનલોડ કરો!
+              </h4>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 max-w-xl">
+                અભ્યાસ મટીરીયલ્સ, વિડીયોઝ અને ડેઇલી ક્વિઝની શ્રેષ્ઠ સગવડ માટે અમારી સત્તાવાર એન્ડ્રોઇડ એપ ડાઉનલોડ કરો અને જાહેરાત મુક્ત ભણતરનો આનંદ માણો.
+              </p>
+            </div>
+          </div>
+          <a
+            href="https://apkbuild.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-2xl bg-gradient-to-tr from-premium-500 to-indigo-650 px-5 py-3 text-xs font-black text-white shadow-md shadow-premium-500/20 hover:scale-[1.03] active:scale-95 transition-all shrink-0 text-center w-full sm:w-auto"
+          >
+            Download APK File
+          </a>
+        </div>
+      )}
 
       {/* Conditionally displays payment status banner */}
       {getStatusBanner()}

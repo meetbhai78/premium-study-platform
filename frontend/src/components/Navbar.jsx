@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Sun, Moon, LogOut, Bell, User, Star, Menu, X, Shield } from 'lucide-react';
+import { Sun, Moon, LogOut, Bell, User, Star, Menu, X, Shield, Smartphone } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../context/AuthContext';
@@ -74,6 +74,20 @@ export default function Navbar({ onToggleSidebar }) {
 
         {/* Right Section: Interactions & Authenticated user indicators */}
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* Download Mobile App Button */}
+          {!(window.Capacitor && window.Capacitor.isNativePlatform()) && (
+            <a
+              href="https://apkbuild.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-1.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/20 px-3.5 py-2 text-xs font-black text-premium-600 dark:text-premium-400 hover:scale-105 active:scale-95 transition-all shadow-sm shrink-0"
+              title="Download Android App APK"
+            >
+              <Smartphone className="h-4 w-4" />
+              Download App
+            </a>
+          )}
+
           {/* Light/Dark Toggle */}
           <button
             onClick={toggleTheme}
