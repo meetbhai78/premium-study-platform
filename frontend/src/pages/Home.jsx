@@ -26,7 +26,7 @@ export default function Home() {
   ];
 
   const handleShareApp = async () => {
-    const downloadLink = 'https://apkbuild.netlify.app/';
+    const downloadLink = 'https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk';
     try {
       await navigator.share({
         title: 'EDUCATION07_ - Premium Study Material App',

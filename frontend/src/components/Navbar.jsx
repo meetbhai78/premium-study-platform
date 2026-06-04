@@ -77,7 +77,7 @@ export default function Navbar({ onToggleSidebar }) {
           {/* Download Mobile App Button */}
           {!(window.Capacitor && window.Capacitor.isNativePlatform()) && (
             <a
-              href="https://apkbuild.netlify.app/"
+              href="https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex items-center gap-1.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200/20 px-3.5 py-2 text-xs font-black text-premium-600 dark:text-premium-400 hover:scale-105 active:scale-95 transition-all shadow-sm shrink-0"

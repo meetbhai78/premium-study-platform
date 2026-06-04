@@ -95,7 +95,7 @@ export default function UserDashboard() {
   };
 
   const handleShareApp = async () => {
-    const downloadLink = 'https://apkbuild.netlify.app/';
+    const downloadLink = 'https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk';
     try {
       if (navigator.share) {
         await navigator.share({
@@ -542,7 +542,7 @@ export default function UserDashboard() {
             </div>
           </div>
           <a
-            href="https://apkbuild.netlify.app/"
+            href="https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-2xl bg-gradient-to-tr from-premium-500 to-indigo-650 px-5 py-3 text-xs font-black text-white shadow-md shadow-premium-500/20 hover:scale-[1.03] active:scale-95 transition-all shrink-0 text-center w-full sm:w-auto"
@@ -643,8 +643,8 @@ export default function UserDashboard() {
         </Link>
       )}
 
-      {/* Analytics KPI metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Analytics KPI metrics & Download App Card */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatCard
           title="Study Vault Count"
           value={stats.totalMaterials}
@@ -657,6 +657,29 @@ export default function UserDashboard() {
           icon={isPremium ? Sparkles : User}
           colorClass={isPremium ? 'bg-gradient-to-tr from-amber-500 to-orange-600 shadow-amber-500/10' : 'bg-gradient-to-tr from-slate-400 to-slate-500'}
         />
+
+        {/* Clickable Card for Direct App Download */}
+        <a
+          href="https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="glass premium-card flex items-center justify-between rounded-2xl p-6 shadow-sm border border-slate-200/50 dark:border-slate-800/50 hover:shadow-md hover:border-premium-400/30 transition-all group cursor-pointer"
+        >
+          <div>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+              Mobile Application
+            </p>
+            <h3 className="mt-2 text-lg sm:text-xl font-extrabold text-slate-800 dark:text-slate-105 group-hover:text-premium-500 transition-colors font-sans tracking-tight">
+              Download App
+            </h3>
+            <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">
+              Direct download from GitHub
+            </p>
+          </div>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg bg-gradient-to-tr from-indigo-500 to-premium-600 shadow-indigo-500/10 group-hover:scale-110 transition-transform">
+            <Smartphone className="h-5 w-5" />
+          </div>
+        </a>
       </div>
 
       {/* Advertisements for free members */}

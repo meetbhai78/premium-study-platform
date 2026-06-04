@@ -7,7 +7,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const { user, logout, isPremium, isAdmin } = useAuth();
 
   const handleShareApp = async () => {
-    const downloadLink = 'https://apkbuild.netlify.app/';
+    const downloadLink = 'https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk';
     try {
       if (navigator.share) {
         await navigator.share({
@@ -123,7 +123,7 @@ export default function Sidebar({ isOpen, onClose }) {
               <p className="text-[10px] font-bold text-premium-600 dark:text-premium-400 uppercase tracking-wider">EDUCATION07_ Mobile App</p>
               <h4 className="text-[11px] font-black text-slate-700 dark:text-slate-200">મોબાઈલ એપ ડાઉનલોડ કરો!</h4>
               <a
-                href="https://apkbuild.netlify.app/"
+                href="https://github.com/meetbhai78/premium-study-platform/releases/latest/download/app-debug.apk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-tr from-premium-500 to-indigo-650 py-2 text-xs font-black text-white shadow-md shadow-premium-500/20 hover:scale-105 active:scale-95 transition-all"

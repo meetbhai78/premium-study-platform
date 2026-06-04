@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { API_URL } from '../context/AuthContext';
+import { API_URL, SERVER_URL } from '../context/AuthContext';
 import { QrCode, Upload, CheckCircle2, ShieldCheck, Sparkles, Smartphone, ArrowRight, Image as ImageIcon, AlertCircle, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -328,17 +328,18 @@ export default function PaymentPage() {
             Scan UPI QR Code to Pay
           </h3>
 
-          {/* Dynamic real QR server endpoint */}
+          {/* Real QR image uploaded by user / admin */}
           <div className="relative p-4 rounded-3xl bg-white border border-slate-100 shadow-inner flex items-center justify-center h-60 w-60">
-            {upiInfo ? (
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiInfo.qrCodePayload)}`}
-                alt="UPI Payment QR Code"
-                className="h-48 w-48 object-contain"
-              />
-            ) : (
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-premium-500 border-t-transparent" />
-            )}
+            <img
+              src="/qr_code.png"
+              onError={(e) => {
+                e.target.onerror = null;
+                // Fallback to backend served uploaded file if local web image fails to load
+                e.target.src = `${SERVER_URL}/uploads/qr_code.png`;
+              }}
+              alt="UPI Payment QR Code"
+              className="h-48 w-48 object-contain"
+            />
           </div>
 
           <div className="text-center space-y-1">
