@@ -1,0 +1,24 @@
+# Node Modules
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Local Secrets (Keep credentials secure from leaks!)
+backend/.env
+.env
+
+# Temp directories
+backend/temp/
+temp/
+
+# Frontend builds
+frontend/dist/
+dist/
+
+# Android build cache and settings
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/.idea/
+*.log
+.DS_Store

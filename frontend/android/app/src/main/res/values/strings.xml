@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EDUCATION07_</string>
+    <string name="title_activity_main">EDUCATION07_</string>
+    <string name="package_name">com.study.material.platform</string>
+    <string name="custom_url_scheme">com.study.material.platform</string>
+</resources>

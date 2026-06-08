@@ -1,0 +1,17 @@
+{
+  "name": "premium-study-platform-monolith",
+  "version": "1.0.0",
+  "description": "Premium Study Platform Monolith (React + Express unified)",
+  "main": "backend/src/index.js",
+  "scripts": {
+    "install-backend": "cd backend && npm install --include=dev",
+    "install-frontend": "cd frontend && npm install --legacy-peer-deps --include=dev",
+    "build-frontend": "cd frontend && npm run build",
+    "build": "npm run install-backend && npm run install-frontend && npm run build-frontend",
+    "start": "node backend/src/index.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "private": true
+}
