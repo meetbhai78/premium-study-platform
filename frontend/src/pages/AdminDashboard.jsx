@@ -6,7 +6,7 @@ import { TableRowSkeleton } from '../components/SkeletonLoader';
 import {
   Users, Sparkles, Shield, DollarSign, BookOpen, Megaphone, Trash2, Check, X, ShieldAlert,
   ShieldCheck, Upload, AlertCircle, FileText, Image as ImageIcon, Search, PlusCircle, ExternalLink, HelpCircle,
-  MessageCircle, Send, CheckCircle2, Clock, Key
+  MessageCircle, Send, CheckCircle2, Clock, Key, Eye, EyeOff
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [lightboxImage, setLightboxImage] = useState(null);
   const [resettingUser, setResettingUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -1614,6 +1615,7 @@ export default function AdminDashboard() {
                 onClick={() => {
                   setResettingUser(null);
                   setNewPassword('');
+                  setShowResetPassword(false);
                 }}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
               >
@@ -1638,6 +1640,7 @@ export default function AdminDashboard() {
                     setSuccessMsg(res.data.message);
                     setResettingUser(null);
                     setNewPassword('');
+                    setShowResetPassword(false);
                     clearMessages();
                   }
                 } catch (err) {
@@ -1653,15 +1656,28 @@ export default function AdminDashboard() {
                 <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">
                   New Password
                 </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3 px-4 text-sm text-slate-800 focus:border-premium-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 focus:dark:bg-darkbg-100 transition-all"
-                  required
-                  minLength={6}
-                />
+                <div className="relative">
+                  <input
+                    type={showResetPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3 pl-4 pr-11 text-sm text-slate-800 focus:border-premium-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 focus:dark:bg-darkbg-100 transition-all"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowResetPassword(!showResetPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    {showResetPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-2">
@@ -1670,6 +1686,7 @@ export default function AdminDashboard() {
                   onClick={() => {
                     setResettingUser(null);
                     setNewPassword('');
+                    setShowResetPassword(false);
                   }}
                   className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 py-3 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
                 >
