@@ -147,3 +147,34 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Reset user password manually by Admin
+// @route   PUT /api/admin/users/:id/reset-password
+// @access  Private (Admin Only)
+exports.resetUserPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password || password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Please provide a password of at least 6 characters' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Set the password. The pre('save') hook in the User model will hash this.
+    user.passwordHash = password;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Password for ${user.name} has been reset successfully.`,
+    });
+  } catch (error) {
+    console.error('Admin Password Reset Error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

@@ -6,7 +6,7 @@ import { TableRowSkeleton } from '../components/SkeletonLoader';
 import {
   Users, Sparkles, Shield, DollarSign, BookOpen, Megaphone, Trash2, Check, X, ShieldAlert,
   ShieldCheck, Upload, AlertCircle, FileText, Image as ImageIcon, Search, PlusCircle, ExternalLink, HelpCircle,
-  MessageCircle, Send, CheckCircle2, Clock
+  MessageCircle, Send, CheckCircle2, Clock, Key
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -36,6 +36,8 @@ export default function AdminDashboard() {
   const [rejectReason, setRejectReason] = useState('');
   const [activeRejectId, setActiveRejectId] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
+  const [resettingUser, setResettingUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -829,7 +831,14 @@ export default function AdminDashboard() {
                           {item.premium ? 'Premium' : 'Free'}
                         </button>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right space-x-1">
+                        <button
+                          onClick={() => setResettingUser(item)}
+                          className="rounded-lg p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
+                          title="Reset User Password"
+                        >
+                          <Key className="h-4.5 w-4.5" />
+                        </button>
                         <button
                           onClick={() => handleDeleteUser(item._id)}
                           className="rounded-lg p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
@@ -1591,6 +1600,94 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Admin Password Reset Modal */}
+      {resettingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl p-6 space-y-4 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="font-extrabold text-sm text-slate-800 dark:text-white flex items-center gap-1.5">
+                <ShieldAlert className="h-4.5 w-4.5 text-premium-500" />
+                Reset Password for {resettingUser.name}
+              </h3>
+              <button
+                onClick={() => {
+                  setResettingUser(null);
+                  setNewPassword('');
+                }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (newPassword.length < 6) {
+                  setErrorMsg('Password must be at least 6 characters long.');
+                  clearMessages();
+                  return;
+                }
+                setActionLoading(true);
+                try {
+                  const res = await axios.put(`${API_URL}/admin/users/${resettingUser._id}/reset-password`, {
+                    password: newPassword,
+                  });
+                  if (res.data && res.data.success) {
+                    setSuccessMsg(res.data.message);
+                    setResettingUser(null);
+                    setNewPassword('');
+                    clearMessages();
+                  }
+                } catch (err) {
+                  setErrorMsg(err.response?.data?.message || 'Failed to reset password.');
+                  clearMessages();
+                } finally {
+                  setActionLoading(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider pl-1">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 py-3 px-4 text-sm text-slate-800 focus:border-premium-500 focus:bg-white focus:outline-none dark:border-slate-800 dark:bg-darkbg-100/50 dark:text-slate-200 focus:dark:bg-darkbg-100 transition-all"
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResettingUser(null);
+                    setNewPassword('');
+                  }}
+                  className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 py-3 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="flex-1 rounded-2xl bg-premium-500 py-3 text-xs font-bold text-white shadow-lg shadow-premium-500/20 hover:bg-premium-600 disabled:opacity-50 transition-all"
+                >
+                  {actionLoading ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
