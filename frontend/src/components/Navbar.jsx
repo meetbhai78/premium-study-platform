@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon, LogOut, Bell, User, Star, Menu, X, Shield, Smartphone } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../context/AuthContext';
 
@@ -13,6 +13,7 @@ export default function Navbar({ onToggleSidebar }) {
   const [showBellDropdown, setShowBellDropdown] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchActiveNotices = async () => {
@@ -34,6 +35,12 @@ export default function Navbar({ onToggleSidebar }) {
     window.addEventListener('open-profile-modal', handleOpenProfile);
     return () => window.removeEventListener('open-profile-modal', handleOpenProfile);
   }, []);
+
+  // Close profile modal and dropdown when location/page changes
+  useEffect(() => {
+    setShowProfileModal(false);
+    setShowBellDropdown(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -173,10 +180,10 @@ export default function Navbar({ onToggleSidebar }) {
       {showProfileModal && (
         <div
           onClick={() => setShowProfileModal(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-scale-in cursor-pointer"
         >
           <div
-            className="relative w-full max-w-md rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass animate-scale-in"
+            className="relative w-full max-w-md rounded-3xl bg-white border border-slate-200 dark:border-slate-800 dark:bg-darkbg-200 shadow-2xl overflow-hidden glass animate-scale-in cursor-default"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Upper colorful header */}
