@@ -3,11 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { Sparkles, X, BookOpen, GraduationCap, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// ─── Start.io Publisher Credentials ──────────────────────────────────────────
-const STARTIO_PUBLISHER_ID = '175055845';
-const STARTIO_APP_ID       = '204789628';
+// ─── Google AdSense Credentials ─────────────────────────────────────────────
+const GOOGLE_ADSENSE_CLIENT_ID = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID || 'ca-pub-2863105557528184';
+const GOOGLE_ADSENSE_SLOT_ID   = import.meta.env.VITE_GOOGLE_ADSENSE_SLOT_ID   || '2047896281';
 
-// ─── Fallback house ads (if Start.io fails to fill) ──────────────────────────
+// ─── Fallback house ads (if Google AdSense is blocked or fails) ───────────────
 const HOUSE_ADS = [
   {
     id: 'tat_tet',
@@ -41,23 +41,29 @@ const HOUSE_ADS = [
   },
 ];
 
-// ─── Load Start.io SDK script (once globally) ─────────────────────────────────
+// ─── Load Google AdSense SDK script dynamically (only on web browser) ────────
 let _sdkState = 'idle'; // 'idle' | 'loading' | 'ready' | 'failed'
 const _sdkCallbacks = [];
 
-function loadStartioSDK(cb) {
-  if (_sdkState === 'ready')  { cb(true);  return; }
-  if (_sdkState === 'failed') { cb(false); return; }
+function loadAdSenseSDK(cb) {
+  // Never load inside Capacitor native platforms
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+    if (cb) cb(false);
+    return;
+  }
 
-  _sdkCallbacks.push(cb);
+  if (_sdkState === 'ready')  { if (cb) cb(true);  return; }
+  if (_sdkState === 'failed') { if (cb) cb(false); return; }
+
+  if (cb) _sdkCallbacks.push(cb);
   if (_sdkState === 'loading') return;
 
   _sdkState = 'loading';
 
   const script = document.createElement('script');
   script.async = true;
-  // Start.io official web ad tag endpoint
-  script.src = `https://ads.startappservice.com/ads/startio_ads.js?pub=${STARTIO_PUBLISHER_ID}&app=${STARTIO_APP_ID}`;
+  script.crossOrigin = 'anonymous';
+  script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${GOOGLE_ADSENSE_CLIENT_ID}`;
 
   script.onload = () => {
     _sdkState = 'ready';
@@ -73,87 +79,51 @@ function loadStartioSDK(cb) {
   document.head.appendChild(script);
 }
 
-// ─── Try to render a Start.io banner into a DOM container ────────────────────
-function renderStartioBanner(containerId, position) {
-  try {
-    // Method 1: window.startio.show()
-    if (window.startio && typeof window.startio.show === 'function') {
-      window.startio.show({
-        pub: STARTIO_PUBLISHER_ID,
-        appId: STARTIO_APP_ID,
-        adType: 'banner',
-        container: containerId,
-        width: 320,
-        height: 50,
-      });
-      return true;
-    }
-    // Method 2: window.startio.loadAd()
-    if (window.startio && typeof window.startio.loadAd === 'function') {
-      window.startio.loadAd({
-        pub: STARTIO_PUBLISHER_ID,
-        appId: STARTIO_APP_ID,
-        placement: position === 'sidebar' ? 'sidebar_banner' : 'top_banner',
-        container: containerId,
-      });
-      return true;
-    }
-    // Method 3: window.StartAppAd
-    if (window.StartAppAd) {
-      new window.StartAppAd({
-        pub: STARTIO_PUBLISHER_ID,
-        app: STARTIO_APP_ID,
-        type: 'banner',
-        el: document.getElementById(containerId),
-      });
-      return true;
-    }
-    // Method 4: global startapp config injection
-    if (typeof window.startapp !== 'undefined') {
-      window.startapp.createBannerAd({
-        pub: STARTIO_PUBLISHER_ID,
-        app: STARTIO_APP_ID,
-        container: containerId,
-      });
-      return true;
-    }
-    return false; // SDK loaded but no known API
-  } catch {
-    return false;
-  }
-}
-
-// ─── Unique ID helper ─────────────────────────────────────────────────────────
-let _adCounter = 0;
-
 export default function AdBanner({ position = 'top' }) {
   const { isPremium, isAdmin } = useAuth();
-  const [dismissed,    setDismissed]    = useState(false);
-  const [adState,      setAdState]      = useState('loading'); // 'loading'|'startio'|'house'
-  const containerId = useRef(`startio-ad-${position}-${++_adCounter}`).current;
+  const [dismissed, setDismissed] = useState(false);
+  const [adState, setAdState] = useState('loading'); // 'loading' | 'adsense' | 'house'
   const [houseAd] = useState(
     () => HOUSE_ADS[Math.floor(Math.random() * HOUSE_ADS.length)]
   );
 
-  // ─── Load Start.io on mount ───────────────────────────────────────────────
-  useEffect(() => {
-    if (isPremium || isAdmin || dismissed) return;
+  const isNativeApp = window.Capacitor && window.Capacitor.isNativePlatform();
 
-    loadStartioSDK((loaded) => {
+  // ─── Load Google AdSense on mount ──────────────────────────────────────────
+  useEffect(() => {
+    if (isPremium || isAdmin || dismissed || isNativeApp) return;
+
+    let timer;
+    loadAdSenseSDK((loaded) => {
       if (!loaded) {
         setAdState('house');
         return;
       }
-      // Give DOM time to render the container div before injecting
-      setTimeout(() => {
-        const rendered = renderStartioBanner(containerId, position);
-        setAdState(rendered ? 'startio' : 'house');
+
+      // Give DOM time to render the container ins/div before invoking push
+      timer = setTimeout(() => {
+        try {
+          if (window.adsbygoogle) {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+            setAdState('adsense');
+          } else {
+            // Script loaded but adsbygoogle blocked (e.g. adblocker)
+            setAdState('house');
+          }
+        } catch (e) {
+          console.warn('Google AdSense push failed:', e);
+          setAdState('house');
+        }
       }, 300);
     });
-  }, [isPremium, isAdmin, dismissed, containerId, position]);
 
-  // ─── Never show ads to premium / admin ───────────────────────────────────
-  if (isPremium || isAdmin || dismissed) return null;
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isPremium, isAdmin, dismissed, isNativeApp, position]);
+
+  // ─── Never show ads to premium / admin / native app users ──────────────────
+  if (isPremium || isAdmin || dismissed || isNativeApp) return null;
 
   // ─── Shared wrapper classes ───────────────────────────────────────────────
   const wrapClass = `relative w-full animate-scale-in ${position === 'sidebar' ? 'my-3' : 'my-5'}`;
@@ -196,21 +166,27 @@ export default function AdBanner({ position = 'top' }) {
     );
   }
 
-  // ─── START.IO real earning ad container ──────────────────────────────────
-  if (adState === 'startio') {
+  // ─── GOOGLE ADSENSE real banner container ──────────────────────────────────
+  if (adState === 'adsense') {
     return (
       <div className={wrapClass}>
         <div className="rounded-3xl border border-slate-200 dark:border-slate-800/50 bg-white dark:bg-slate-900/40 p-3 shadow-sm">
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center justify-between mb-1.5 px-1">
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-              Advertisement
+              Advertisement (Google Ad)
             </span>
           </div>
-          {/* Start.io injects the real ad banner here */}
-          <div
-            id={containerId}
-            style={{ width: '100%', minHeight: '50px', overflow: 'hidden' }}
-          />
+          {/* AdSense Unit */}
+          <div className="w-full overflow-hidden flex justify-center bg-slate-50 dark:bg-slate-900/20 rounded-2xl p-2 min-h-[90px]">
+            <ins
+              className="adsbygoogle"
+              style={{ display: 'block', width: '100%', minWidth: '250px' }}
+              data-ad-client={GOOGLE_ADSENSE_CLIENT_ID}
+              data-ad-slot={GOOGLE_ADSENSE_SLOT_ID}
+              data-ad-format="horizontal"
+              data-full-width-responsive="true"
+            />
+          </div>
           <OverlayControls />
         </div>
       </div>
@@ -223,14 +199,6 @@ export default function AdBanner({ position = 'top' }) {
     <div
       className={`${wrapClass} rounded-3xl overflow-hidden border ${houseAd.border} bg-gradient-to-r ${houseAd.gradient} p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-300`}
     >
-      {/* Android APK Start.io native hook (hidden) */}
-      <div
-        id={`startio-native-${position}`}
-        data-pub={STARTIO_PUBLISHER_ID}
-        data-app-id={STARTIO_APP_ID}
-        style={{ display: 'none' }}
-      />
-
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-start gap-3.5 w-full sm:w-auto">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
