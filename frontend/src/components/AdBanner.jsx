@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 // ─── Google AdSense Credentials ─────────────────────────────────────────────
 const GOOGLE_ADSENSE_CLIENT_ID = import.meta.env.VITE_GOOGLE_ADSENSE_CLIENT_ID || 'ca-pub-2863105557528184';
-const GOOGLE_ADSENSE_SLOT_ID   = import.meta.env.VITE_GOOGLE_ADSENSE_SLOT_ID   || '2047896281';
+const GOOGLE_ADSENSE_SLOT_ID   = import.meta.env.VITE_GOOGLE_ADSENSE_SLOT_ID   || '7759102911';
 
 // ─── Fallback house ads (if Google AdSense is blocked or fails) ───────────────
 const HOUSE_ADS = [
