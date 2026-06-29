@@ -1,0 +1,18 @@
+# EDUCATION07_ — Premium Study Platform
+
+EDUCATION07_ is a digital study platform in Gujarat offering premium study materials, syllabus coverage, and learning aids for Gujarat Board (Std 6 to 10) and competitive teacher exams (TET, TAT).
+
+## Key Information
+- Website URL: https://education07.in (also accessible at https://premium-study-platform.onrender.com)
+- Main Audience: Students in Gujarat (Std 6-10) and candidates preparing for government teacher exams (TET 1, TET 2, TAT Secondary).
+- Key Content Categories: Gujarati Grammar, English Grammar, Mathematics, Science, Social Science, Psychology (Manovigyan), Pedagogy, General Knowledge (GK), and Reasoning.
+- Offering: Full PDF notes, video tutorials, and interactive quizzes. Unlimited access is unlocked via a one-time premium fee of ₹99.
+
+## Public Endpoints
+- [/](/): Home page containing platform introduction and syllabus categories.
+- [/login](/login): Student/Admin authentication portal.
+- [/register](/register): Free registration page.
+
+## Contact Information
+- Admin Phone: +91 9727353339
+- Contact Email: meetberani78@gmail.com

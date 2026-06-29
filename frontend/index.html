@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- ===== FONTS PRECONNECT ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+
     <!-- ===== PRIMARY SEO TAGS ===== -->
     <title>EDUCATION07_ | TET TAT Std 6-10 Study Material Gujarat | Free Premium PDF Notes</title>
     <meta name="description" content="EDUCATION07_ - Gujarat Board Std 6 to 10 ના PDF Notes, TET TAT Manovigyan Pedagogy Reasoning GK, Gujarati English Maths Science Social Science IMP Questions. ₹99 માં Premium Access. ધોરણ 9 10 અભ્યાસ સામગ્રી." />
@@ -133,8 +138,18 @@
     }
     </script>
 
-    <!-- ===== Google AdSense ===== -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2863105557528184" crossorigin="anonymous"></script>
+    <!-- ===== Google AdSense (Lazy Loaded for 100% Performance) ===== -->
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const script = document.createElement('script');
+          script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2863105557528184";
+          script.crossOrigin = "anonymous";
+          script.async = true;
+          document.head.appendChild(script);
+        }, 1500);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

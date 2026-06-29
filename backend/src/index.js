@@ -215,6 +215,16 @@ app.get('/google46213499855a223c.html', (req, res) => {
   res.send('google-site-verification: google46213499855a223c.html');
 });
 
+// Serve llms.txt file
+app.get('/llms.txt', (req, res) => {
+  const llmsPath = path.resolve(__dirname, '../../frontend/public/llms.txt');
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  if (fs.existsSync(llmsPath)) {
+    return res.sendFile(llmsPath);
+  }
+  res.status(404).send('llms.txt not found');
+});
+
 // ==============================
 
 
