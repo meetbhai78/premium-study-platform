@@ -145,8 +145,16 @@ app.get('/ads.txt', (req, res) => {
 app.get('/robots.txt', (req, res) => {
   const robotsPath = path.resolve(__dirname, '../../frontend/public/robots.txt');
   res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  const currentHost = req.protocol + '://' + req.get('host');
+  
   if (fs.existsSync(robotsPath)) {
-    return res.sendFile(robotsPath);
+    try {
+      let content = fs.readFileSync(robotsPath, 'utf8');
+      content = content.replace(/https:\/\/education07\.in/g, currentHost);
+      return res.send(content);
+    } catch (err) {
+      console.error('Error reading robots.txt:', err);
+    }
   }
   // Inline fallback
   res.send([
@@ -157,7 +165,7 @@ app.get('/robots.txt', (req, res) => {
     'Disallow: /payment',
     'Disallow: /api/',
     '',
-    'Sitemap: https://education07.in/sitemap.xml',
+    `Sitemap: ${currentHost}/sitemap.xml`,
   ].join('\n'));
 });
 
@@ -166,16 +174,24 @@ app.get('/sitemap.xml', (req, res) => {
   const sitemapPath = path.resolve(__dirname, '../../frontend/public/sitemap.xml');
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('X-Robots-Tag', 'noindex'); // sitemap itself should not be indexed
+  const currentHost = req.protocol + '://' + req.get('host');
+
   if (fs.existsSync(sitemapPath)) {
-    return res.sendFile(sitemapPath);
+    try {
+      let content = fs.readFileSync(sitemapPath, 'utf8');
+      content = content.replace(/https:\/\/education07\.in/g, currentHost);
+      return res.send(content);
+    } catch (err) {
+      console.error('Error reading sitemap.xml:', err);
+    }
   }
   // Inline dynamic fallback
   const today = new Date().toISOString().split('T')[0];
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://education07.in/</loc><lastmod>${today}</lastmod><priority>1.0</priority></url>
-  <url><loc>https://education07.in/register</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>
-  <url><loc>https://education07.in/login</loc><lastmod>${today}</lastmod><priority>0.6</priority></url>
+  <url><loc>${currentHost}/</loc><lastmod>${today}</lastmod><priority>1.0</priority></url>
+  <url><loc>${currentHost}/register</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>
+  <url><loc>${currentHost}/login</loc><lastmod>${today}</lastmod><priority>0.6</priority></url>
 </urlset>`);
 });
 
