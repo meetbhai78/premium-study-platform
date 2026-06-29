@@ -189,6 +189,16 @@ app.get('/site.webmanifest', (req, res) => {
   res.status(404).json({ error: 'Manifest not found' });
 });
 
+// Serve google-site-verification HTML file
+app.get('/google46213499855a223c.html', (req, res) => {
+  const verifyPath = path.resolve(__dirname, '../../frontend/public/google46213499855a223c.html');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  if (fs.existsSync(verifyPath)) {
+    return res.sendFile(verifyPath);
+  }
+  res.send('google-site-verification: google46213499855a223c.html');
+});
+
 // ==============================
 
 
