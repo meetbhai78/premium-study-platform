@@ -1,0 +1,40 @@
+# ============================================================
+# EDUCATION07_ — robots.txt
+# Website: https://education07.in
+# ============================================================
+
+# Allow all major search engine bots
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /payment
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /payment
+Disallow: /api/
+
+User-agent: Slurp
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /payment
+Disallow: /api/
+
+# Allow all other bots
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /payment
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://education07.in/sitemap.xml
+
+# Crawl delay (in seconds) — respectful crawling
+Crawl-delay: 2

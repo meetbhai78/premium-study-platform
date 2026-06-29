@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Home Page — Highest Priority -->
+  <url>
+    <loc>https://education07.in/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="gu" href="https://education07.in/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://education07.in/"/>
+    <image:image>
+      <image:loc>https://education07.in/study_banner.png</image:loc>
+      <image:title>EDUCATION07_ - Premium Study Platform Gujarat</image:title>
+      <image:caption>Gujarat Board Std 6-10 and TET TAT study materials platform</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Register Page -->
+  <url>
+    <loc>https://education07.in/register</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Login Page -->
+  <url>
+    <loc>https://education07.in/login</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>

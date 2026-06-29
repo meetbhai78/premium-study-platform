@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, Mail, Lock, ArrowRight, ShieldAlert } from 'lucide-react';
@@ -50,6 +51,13 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12 bg-slate-50 dark:bg-darkbg-100 transition-colors relative">
+      {/* SEO */}
+      <Helmet>
+        <title>Login — EDUCATION07_ | TET TAT Gujarat Study Platform</title>
+        <meta name="description" content="EDUCATION07_ platform par login karo. TET TAT Std 6-10 study materials, PDFs, videos access karo." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://education07.in/login" />
+      </Helmet>
       {/* Back to Home */}
       <Link to="/" className="absolute top-5 left-5 flex items-center gap-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all z-10">
         <span>←</span> Home

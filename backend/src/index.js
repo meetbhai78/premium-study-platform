@@ -137,6 +137,61 @@ app.get('/ads.txt', (req, res) => {
   res.send(`start.io, 175055845, DIRECT\npubnative.net, 1007349, RESELLER, d641df8625486a7b\npubnative.net, 1008289, RESELLER, d641df8625486a7b`);
 });
 
+// ==============================
+// SEO Routes
+// ==============================
+
+// Serve robots.txt from frontend/public
+app.get('/robots.txt', (req, res) => {
+  const robotsPath = path.resolve(__dirname, '../../frontend/public/robots.txt');
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  if (fs.existsSync(robotsPath)) {
+    return res.sendFile(robotsPath);
+  }
+  // Inline fallback
+  res.send([
+    'User-agent: *',
+    'Allow: /',
+    'Disallow: /dashboard',
+    'Disallow: /admin',
+    'Disallow: /payment',
+    'Disallow: /api/',
+    '',
+    'Sitemap: https://education07.in/sitemap.xml',
+  ].join('\n'));
+});
+
+// Serve sitemap.xml from frontend/public (or dynamically generate)
+app.get('/sitemap.xml', (req, res) => {
+  const sitemapPath = path.resolve(__dirname, '../../frontend/public/sitemap.xml');
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('X-Robots-Tag', 'noindex'); // sitemap itself should not be indexed
+  if (fs.existsSync(sitemapPath)) {
+    return res.sendFile(sitemapPath);
+  }
+  // Inline dynamic fallback
+  const today = new Date().toISOString().split('T')[0];
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://education07.in/</loc><lastmod>${today}</lastmod><priority>1.0</priority></url>
+  <url><loc>https://education07.in/register</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>
+  <url><loc>https://education07.in/login</loc><lastmod>${today}</lastmod><priority>0.6</priority></url>
+</urlset>`);
+});
+
+// Serve site.webmanifest
+app.get('/site.webmanifest', (req, res) => {
+  const manifestPath = path.resolve(__dirname, '../../frontend/public/site.webmanifest');
+  res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+  if (fs.existsSync(manifestPath)) {
+    return res.sendFile(manifestPath);
+  }
+  res.status(404).json({ error: 'Manifest not found' });
+});
+
+// ==============================
+
+
 // API Routes
 app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
 app.use('/api/materials', require('./routes/materialRoutes'));

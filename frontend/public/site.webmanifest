@@ -1,0 +1,30 @@
+{
+  "name": "EDUCATION07_",
+  "short_name": "EDU07",
+  "description": "Gujarat Board Std 6-10 & TET TAT Premium Study Materials Platform — PDFs, Videos, Mock Tests at ₹99",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#7c3aed",
+  "lang": "gu",
+  "scope": "/",
+  "categories": ["education", "books", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/study_banner.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "EDUCATION07_ Premium Study Platform"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BookOpen, Sparkles, Video, FileDown, ArrowRight, Languages, Percent, FlaskConical, Binary, Atom, Brain, GraduationCap, Lightbulb, Calculator, Globe, FolderOpen, Phone, Mail, Heart, Share2, Award } from 'lucide-react';
@@ -49,6 +50,59 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-darkbg-100 transition-colors">
+      {/* ===== SEO HELMET ===== */}
+      <Helmet>
+        <title>EDUCATION07_ | TET TAT Std 6-10 Study Material Gujarat | Free Premium PDF Notes</title>
+        <meta name="description" content="EDUCATION07_ - Gujarat Board Std 6 to 10 ના PDF Notes, TET TAT Manovigyan Pedagogy Reasoning GK. ₹99 માં Premium Access. ધોરણ 9-10 IMP Questions, Gujarati English Maths Science." />
+        <meta name="keywords" content="TET study material Gujarat, TAT preparation, ધોરણ 10 IMP questions, Std 9 10 PDF notes Gujarat, Manovigyan TET TAT, Pedagogy notes Gujarati, Gujarat GK, education07" />
+        <link rel="canonical" href="https://education07.in/" />
+        <meta property="og:title" content="EDUCATION07_ | Premium Study Materials for TET TAT & Gujarat Board" />
+        <meta property="og:description" content="ધોરણ 6 થી 10 અને TET TAT સ્પર્ધાત્મક પરીક્ષા માટે PDFs, Videos, Mock Tests. ₹99 Only." />
+        <meta property="og:url" content="https://education07.in/" />
+        <meta property="og:image" content="https://education07.in/study_banner.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="EDUCATION07_ | TET TAT & Gujarat Board Study Materials" />
+        <meta name="twitter:description" content="Std 6-10, TET, TAT, Manovigyan, Pedagogy PDFs at ₹99. Gujarat's #1 Digital Study Platform." />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://education07.in/" },
+            { "@type": "ListItem", "position": 2, "name": "Study Materials", "item": "https://education07.in/materials" }
+          ]
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "EDUCATION07_ platform shun offer kare che?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "EDUCATION07_ Gujarat Board Std 6 to 10 na PDF notes, TET TAT preparation material, Manovigyan, Pedagogy, Reasoning, GK, Video Tutorials ane Mock Tests provide kare che. Rs 99 ma premium access male che."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "TET TAT na study materials kyatha malse?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "EDUCATION07_ platform par TET 1, TET 2, TAT Secondary na Manovigyan, Pedagogy, Reasoning, Gujarat GK, Gujarati Grammar, English Grammar na complete PDF notes ane video tutorials malse."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Premium access ni kimat keti che?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sirf Rs 99 ma ek vakhani payment karva thi tamne lifetime premium access male che. Koi monthly subscription nathi."
+              }
+            }
+          ]
+        })}</script>
+      </Helmet>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-500/5 via-transparent to-transparent">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-r from-premium-500/10 to-indigo-500/10 blur-3xl opacity-50 rounded-full" />
