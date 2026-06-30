@@ -157,7 +157,7 @@ exports.createMaterial = async (req, res) => {
     }
 
     console.log(`Uploading file ${file.originalname} as ${materialResourceType}...`);
-    const fileUpload = await uploadFile(fileTempPath, 'study_materials', materialResourceType);
+    const fileUpload = await uploadFile(fileTempPath, 'study_materials', materialResourceType, category);
 
     // 2. Upload Thumbnail if exists
     let thumbnailUrl = '';
@@ -165,7 +165,7 @@ exports.createMaterial = async (req, res) => {
 
     if (thumbTempPath) {
       console.log(`Uploading thumbnail ${thumbnail.originalname}...`);
-      const thumbUpload = await uploadFile(thumbTempPath, 'thumbnails', 'image');
+      const thumbUpload = await uploadFile(thumbTempPath, 'thumbnails', 'image', category);
       thumbnailUrl = thumbUpload.secure_url;
       thumbnailPublicId = thumbUpload.public_id;
     } else {
@@ -227,11 +227,11 @@ exports.updateMaterial = async (req, res) => {
 
       // Delete old Cloudinary thumbnail if active
       if (material.thumbnailPublicId && !material.thumbnailPublicId.startsWith('mock_')) {
-        await deleteFile(material.thumbnailPublicId, 'image');
+        await deleteFile(material.thumbnailPublicId, 'image', material.category);
       }
 
       console.log(`Re-uploading thumbnail...`);
-      const thumbUpload = await uploadFile(thumbTempPath, 'thumbnails', 'image');
+      const thumbUpload = await uploadFile(thumbTempPath, 'thumbnails', 'image', material.category);
       updates.thumbnailUrl = thumbUpload.secure_url;
       updates.thumbnailPublicId = thumbUpload.public_id;
     }
@@ -262,12 +262,12 @@ exports.deleteMaterial = async (req, res) => {
     // 1. Delete associated file from storage
     if (material.filePublicId) {
       const fileType = material.type === 'video' ? 'video' : (material.type === 'pdf' ? 'image' : 'raw');
-      await deleteFile(material.filePublicId, fileType);
+      await deleteFile(material.filePublicId, fileType, material.category);
     }
 
     // 2. Delete thumbnail if active
     if (material.thumbnailPublicId && !material.thumbnailPublicId.startsWith('mock_')) {
-      await deleteFile(material.thumbnailPublicId, 'image');
+      await deleteFile(material.thumbnailPublicId, 'image', material.category);
     }
 
     // 3. Remove DB entry
