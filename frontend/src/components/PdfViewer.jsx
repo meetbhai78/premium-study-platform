@@ -54,6 +54,7 @@ export default function PdfViewer({
 
   const pdfUrl = normalizeUrl(activePdf?.fileUrl, serverUrl);
   const proxyUrl = `${serverUrl}/api/materials/${activePdf?._id}/view`;
+  const secureViewUrl = `${proxyUrl}?token=${encodeURIComponent(localStorage.getItem('token') || '')}`;
 
   const isLocal = pdfUrl && !pdfUrl.startsWith('http');
   const useGview = isMobile() && !isLocal;
@@ -220,7 +221,7 @@ export default function PdfViewer({
 
             {/* Open in new tab — always visible */}
             <a
-              href={pdfUrl}
+              href={secureViewUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 px-2.5 py-2 text-[10px] sm:text-xs font-bold text-white transition-all focus:outline-none"
@@ -308,7 +309,7 @@ export default function PdfViewer({
                 </p>
                 <div className="flex flex-col gap-2.5">
                   <a
-                    href={pdfUrl}
+                    href={secureViewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-black shadow-lg shadow-emerald-500/30 hover:opacity-90 transition-opacity"
@@ -338,7 +339,7 @@ export default function PdfViewer({
           {useGview ? (
             <iframe
               key={`pdf-gview-${activePdf._id}`}
-              src={`https://docs.google.com/gview?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+              src={`https://docs.google.com/gview?url=${encodeURIComponent(secureViewUrl)}&embedded=true`}
               className="w-full h-full border-none bg-slate-50 dark:bg-slate-900"
               title={activePdf.title}
               onLoad={handleIframeLoad}

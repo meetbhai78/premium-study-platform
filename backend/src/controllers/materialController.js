@@ -330,27 +330,49 @@ exports.viewMaterialPdf = async (req, res) => {
 
     // External Cloudinary file streaming proxy handler
     if (pdfUrl.startsWith('http')) {
-      const client = pdfUrl.startsWith('https') ? https : http;
-      
-      client.get(pdfUrl, (externalRes) => {
-        if (externalRes.statusCode !== 200) {
-          console.error(`[PDF Proxy] External storage responded with status: ${externalRes.statusCode}`);
-          return res.status(externalRes.statusCode).json({
-            success: false,
-            message: `External storage returned status ${externalRes.statusCode}`
-          });
+      const followRedirectAndGet = (url, depth = 0) => {
+        if (depth > 5) {
+          return res.status(500).json({ success: false, message: 'Too many redirects from external storage' });
         }
 
-        // Set response headers to force inline rendering and allow broad frame embedding
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        
-        externalRes.pipe(res);
-      }).on('error', (err) => {
-        console.error('[PDF Proxy Error] Dynamic streaming failed:', err);
-        res.status(500).json({ success: false, message: 'Failed to stream PDF from storage' });
-      });
+        const client = url.startsWith('https') ? https : http;
+
+        client.get(url, (externalRes) => {
+          // Handle HTTP redirects (301, 302, 307, 308)
+          if (
+            externalRes.statusCode === 301 ||
+            externalRes.statusCode === 302 ||
+            externalRes.statusCode === 307 ||
+            externalRes.statusCode === 308
+          ) {
+            const redirectUrl = externalRes.headers.location;
+            if (redirectUrl) {
+              const absoluteUrl = redirectUrl.startsWith('http') ? redirectUrl : new URL(redirectUrl, url).toString();
+              return followRedirectAndGet(absoluteUrl, depth + 1);
+            }
+          }
+
+          if (externalRes.statusCode !== 200) {
+            console.error(`[PDF Proxy] External storage responded with status: ${externalRes.statusCode}`);
+            return res.status(externalRes.statusCode).json({
+              success: false,
+              message: `External storage returned status ${externalRes.statusCode}`
+            });
+          }
+
+          // Set response headers to force inline rendering and allow broad frame embedding
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Content-Disposition', 'inline');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+
+          externalRes.pipe(res);
+        }).on('error', (err) => {
+          console.error('[PDF Proxy Error] Dynamic streaming failed:', err);
+          res.status(500).json({ success: false, message: 'Failed to stream PDF from storage' });
+        });
+      };
+
+      followRedirectAndGet(pdfUrl);
     } else {
       res.status(400).json({ success: false, message: 'Unsupported file storage scheme' });
     }
