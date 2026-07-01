@@ -56,7 +56,7 @@ export default function Login() {
         <title>Login — EDUCATION07_ | TET TAT Gujarat Study Platform</title>
         <meta name="description" content="EDUCATION07_ platform par login karo. TET TAT Std 6-10 study materials, PDFs, videos access karo." />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="canonical" href="https://education07.in/login" />
+        <link rel="canonical" href="https://premium-study-platform.onrender.com/login" />
       </Helmet>
       {/* Back to Home */}
       <Link to="/" className="absolute top-5 left-5 flex items-center gap-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all z-10">

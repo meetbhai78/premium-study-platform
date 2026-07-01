@@ -5,14 +5,14 @@
 
   <!-- Home Page — Highest Priority -->
   <url>
-    <loc>https://education07.in/</loc>
+    <loc>https://premium-study-platform.onrender.com/</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="gu" href="https://education07.in/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://education07.in/"/>
+    <xhtml:link rel="alternate" hreflang="gu" href="https://premium-study-platform.onrender.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://premium-study-platform.onrender.com/"/>
     <image:image>
-      <image:loc>https://education07.in/study_banner.png</image:loc>
+      <image:loc>https://premium-study-platform.onrender.com/study_banner.png</image:loc>
       <image:title>EDUCATION07_ - Premium Study Platform Gujarat</image:title>
       <image:caption>Gujarat Board Std 6-10 and TET TAT study materials platform</image:caption>
     </image:image>
@@ -20,7 +20,7 @@
 
   <!-- Register Page -->
   <url>
-    <loc>https://education07.in/register</loc>
+    <loc>https://premium-study-platform.onrender.com/register</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -28,7 +28,7 @@
 
   <!-- Login Page -->
   <url>
-    <loc>https://education07.in/login</loc>
+    <loc>https://premium-study-platform.onrender.com/login</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

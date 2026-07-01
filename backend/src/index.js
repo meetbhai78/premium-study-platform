@@ -150,7 +150,7 @@ app.get('/robots.txt', (req, res) => {
   if (fs.existsSync(robotsPath)) {
     try {
       let content = fs.readFileSync(robotsPath, 'utf8');
-      content = content.replace(/https:\/\/education07\.in/g, currentHost);
+      content = content.replace(/(https:\/\/education07\.in|https:\/\/premium-study-platform\.onrender\.com)/g, currentHost);
       return res.send(content);
     } catch (err) {
       console.error('Error reading robots.txt:', err);
@@ -179,7 +179,7 @@ app.get('/sitemap.xml', (req, res) => {
   if (fs.existsSync(sitemapPath)) {
     try {
       let content = fs.readFileSync(sitemapPath, 'utf8');
-      content = content.replace(/https:\/\/education07\.in/g, currentHost);
+      content = content.replace(/(https:\/\/education07\.in|https:\/\/premium-study-platform\.onrender\.com)/g, currentHost);
       return res.send(content);
     } catch (err) {
       console.error('Error reading sitemap.xml:', err);

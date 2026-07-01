@@ -54,11 +54,11 @@ export default function Home() {
         <title>EDUCATION07_ | TET TAT Std 6-10 Study Material Gujarat | Free Premium PDF Notes</title>
         <meta name="description" content="EDUCATION07_ - Gujarat Board Std 6 to 10 ના PDF Notes, TET TAT Manovigyan Pedagogy Reasoning GK. ₹99 માં Premium Access. ધોરણ 9-10 IMP Questions, Gujarati English Maths Science." />
         <meta name="keywords" content="TET study material Gujarat, TAT preparation, ધોરણ 10 IMP questions, Std 9 10 PDF notes Gujarat, Manovigyan TET TAT, Pedagogy notes Gujarati, Gujarat GK, education07" />
-        <link rel="canonical" href="https://education07.in/" />
+        <link rel="canonical" href="https://premium-study-platform.onrender.com/" />
         <meta property="og:title" content="EDUCATION07_ | Premium Study Materials for TET TAT & Gujarat Board" />
         <meta property="og:description" content="ધોરણ 6 થી 10 અને TET TAT સ્પર્ધાત્મક પરીક્ષા માટે PDFs, Videos, Mock Tests. ₹99 Only." />
-        <meta property="og:url" content="https://education07.in/" />
-        <meta property="og:image" content="https://education07.in/study_banner.png" />
+        <meta property="og:url" content="https://premium-study-platform.onrender.com/" />
+        <meta property="og:image" content="https://premium-study-platform.onrender.com/study_banner.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="EDUCATION07_ | TET TAT & Gujarat Board Study Materials" />
         <meta name="twitter:description" content="Std 6-10, TET, TAT, Manovigyan, Pedagogy PDFs at ₹99. Gujarat's #1 Digital Study Platform." />
@@ -66,8 +66,8 @@ export default function Home() {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://education07.in/" },
-            { "@type": "ListItem", "position": 2, "name": "Study Materials", "item": "https://education07.in/materials" }
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://premium-study-platform.onrender.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Study Materials", "item": "https://premium-study-platform.onrender.com/materials" }
           ]
         })}</script>
         <script type="application/ld+json">{JSON.stringify({

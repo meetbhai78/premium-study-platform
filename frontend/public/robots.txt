@@ -1,6 +1,6 @@
 # ============================================================
 # EDUCATION07_ — robots.txt
-# Website: https://education07.in
+# Website: https://premium-study-platform.onrender.com
 # ============================================================
 
 # Allow all major search engine bots
@@ -34,7 +34,7 @@ Disallow: /payment
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://education07.in/sitemap.xml
+Sitemap: https://premium-study-platform.onrender.com/sitemap.xml
 
 # Crawl delay (in seconds) — respectful crawling
 Crawl-delay: 2

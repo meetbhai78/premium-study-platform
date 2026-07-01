@@ -72,7 +72,7 @@ export default function Register() {
         <title>Free Registration — EDUCATION07_ | TET TAT Gujarat Study Platform</title>
         <meta name="description" content="EDUCATION07_ par Free Register karo. Gujarat Board Std 6-10 na PDF Notes, TET TAT Manovigyan Pedagogy Reasoning GK study materials access karo. ₹99 ma Premium." />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://education07.in/register" />
+        <link rel="canonical" href="https://premium-study-platform.onrender.com/register" />
         <meta property="og:title" content="Free Registration — EDUCATION07_ Study Platform" />
         <meta property="og:description" content="Abhi free register karo aur Gujarat Board TET TAT ke liye best study materials access karo." />
       </Helmet>
