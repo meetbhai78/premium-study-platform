@@ -1,5 +1,9 @@
 {
   "appId": "com.study.material.platform",
   "appName": "EDUCATION07_",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "url": "https://premium-study-platform.onrender.com",
+    "cleartext": true
+  }
 }
