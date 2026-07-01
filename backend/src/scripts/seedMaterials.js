@@ -269,11 +269,11 @@ const mockMaterials = [
     accessType: 'premium',
   },
 
-  // 14. Std 6 to 8
+  // 14. Std 6
   {
     title: 'Std 6-8 Social Science NCERT Book Summary',
     description: 'ધોરણ ૬ થી ૮ સામાજિક વિજ્ઞાન વિષયનું અતિ મહત્વનું એકમ-વાર વિશ્લેષણ PDF.',
-    category: 'Std 6 to 8',
+    category: 'Std 6',
     type: 'pdf',
     fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
     thumbnailUrl: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=600&auto=format&fit=crop',
@@ -282,7 +282,7 @@ const mockMaterials = [
   {
     title: 'Std 6-8 Science & Maths Chapter-wise Videos',
     description: 'ધોરણ ૬, ૭ અને ૮ ગણિત-વિજ્ઞાનના અઘરા પ્રકરણોની એનિમેટેડ સમજૂતી વિડીયો.',
-    category: 'Std 6 to 8',
+    category: 'Std 6',
     type: 'video',
     fileUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
     thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop',
